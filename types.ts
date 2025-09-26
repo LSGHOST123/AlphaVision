@@ -38,3 +38,15 @@ export interface AIAnalysis {
     down: number;
   };
 }
+
+export interface AIInsight {
+  marketTrend: string;
+  opportunity: {
+    symbol: string;
+    reasoning: string;
+  };
+  attentionPoint: {
+    symbol: string;
+    reasoning: string;
+  };
+}

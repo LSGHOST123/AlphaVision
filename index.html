@@ -1,26 +1,1025 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AlphaVision</title>
     <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
+    
+    <!-- Babel Standalone for JSX/ESM transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      /* Custom scrollbar for a more modern look */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #475569; /* slate-600 */
+        border-radius: 20px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #64748b; /* slate-500 */
+      }
+
+      /* Base styles for dark mode scrollbar */
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: #475569; /* slate-600 */
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background-color: #64748b; /* slate-500 */
+      }
+
+      /* Base styles for light mode scrollbar */
+      .light ::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1; /* slate-300 */
+      }
+      .light ::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8; /* slate-400 */
+      }
+
+      /* Marquee animation for Market Overview */
+      @keyframes marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+
+      /* Fade in up animation used across components */
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Fade in scale animation for modal */
+      @keyframes fade-in-scale {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      .animate-marquee {
+        animation: marquee 40s linear infinite;
+      }
+
+      .group:hover .animate-marquee {
+        animation-play-state: paused;
+      }
+
+      .animate-fade-in-up {
+        animation: fade-in-up 0.5s ease-out forwards;
+      }
+
+      .animate-fade-in {
+        animation: fade-in-scale 0.3s ease-out forwards;
+      }
+    </style>
+    <!-- Import Map for ES Modules -->
+    <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.2.1"
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "@google/genai": "https://esm.sh/@google/genai@0.14.0",
+    "recharts": "https://esm.sh/recharts@2.12.7",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="text/babel" data-type="module">
+// =====================================================================================
+// == BUNDLED APP - DO NOT EDIT INDIVIDUAL SOURCE FILES, THEY ARE NO LONGER IN USE ==
+// =====================================================================================
+
+// --- Module Imports ---
+import React, { useState, useEffect, useMemo, createContext, useContext, useCallback, useRef, StrictMode } from 'react';
+import ReactDOM from 'react-dom/client';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { GoogleGenAI, Type, Modality } from "@google/genai";
+
+
+// --- CONFIGURAÇÃO DA CHAVE DE API ---
+// ===================================================================================
+// == IMPORTANTE: PARA USAR A INTELIGÊNCIA ARTIFICIAL, VOCÊ PRECISA DA SUA CHAVE! ==
+// ===================================================================================
+// 1. Acesse: https://aistudio.google.com/app/apikey
+// 2. Clique em "Create API key in new project".
+// 3. Copie a chave gerada.
+// 4. Cole sua chave entre as aspas duplas abaixo na variável GOOGLE_API_KEY.
+//
+// Exemplo: const GOOGLE_API_KEY = "SuaChaveSuperSecretaAqui";
+//
+const GOOGLE_API_KEY = ""; // <<< COLE SUA CHAVE DE API DO GOOGLE AQUI
+
+
+// --- translations.ts ---
+const translations = {
+  pt: {
+    language: 'Idioma', currency: 'Moeda', headerTitle: 'AlphaVision', headerSubtitle: 'Sua visão de mercado ampliada pela IA.', chartDate: 'Data', chartPrice: 'Preço', addToFavorites: 'Adicionar aos Favoritos', removeFromFavorites: 'Remover dos Favoritos', searchPlaceholder: 'Buscar por nome ou símbolo...', showFavoritesOnly: 'Apenas Favoritos', sortLabel: 'Ordenar por', sortNameAsc: 'Nome (A-Z)', sortNameDesc: 'Nome (Z-A)', sortPriceDesc: 'Preço (Maior)', sortPriceAsc: 'Preço (Menor)', sortChangeDesc: 'Variação % (Maior)', sortChangeAsc: 'Variação % (Menor)', loadingMarket: 'Carregando dados do mercado...', loadingAsset: 'Carregando dados do ativo...', COMPRE: 'COMPRE', VENDA: 'VENDA', MANTENHA: 'MANTENHA', BAIXO: 'BAIXO', MÉDIO: 'MÉDIO', ALTO: 'ALTO', modalAIGenerated: 'Análise gerada por IA', modalRecommendation: 'Recomendação', modalReasoning: 'Justificativa', modalRisk: 'Risco', modalReturn: 'Retorno Potencial', modalProbabilities: 'Probabilidades', backToList: 'Voltar para a Lista', profile: 'Perfil da Empresa', news: 'Notícias Recentes', aiAnalysis: 'Análise com IA', aiAnalysisSubtitle: "Clique abaixo para obter uma análise técnica detalhada do ativo.", generateAnalysis: 'Gerar Análise', generatingAnalysis: 'Gerando Análise...', refreshAnalysis: "Atualizar Análise", refreshingAnalysis: "Aprimorando...", analysisTimestamp: "Análise gerada em:", noNews: 'Nenhuma notícia recente disponível.', loadingNews: 'Buscando notícias...', aiInsightsTitle: 'AlphaVision AI Insights', aiInsightsDescription: 'Receba um resumo do mercado e destaques gerados por IA.', generateInsights: 'Gerar Resumo do Mercado', generatingInsights: 'Analisando Mercado...', opportunityHighlight: 'Oportunidade em Destaque', attentionPoint: 'Ponto de Atenção', settings: 'Configurações', theme: 'Tema', lightTheme: 'Claro', darkTheme: 'Escuro', close: 'Fechar',
+  },
+  en: {
+    language: 'Language', currency: 'Currency', headerTitle: 'AlphaVision', headerSubtitle: 'Your market vision amplified by AI.', chartDate: 'Date', chartPrice: 'Price', addToFavorites: 'Add to Favorites', removeFromFavorites: 'Remove from Favorites', searchPlaceholder: 'Search by name or symbol...', showFavoritesOnly: 'Favorites Only', sortLabel: 'Sort by', sortNameAsc: 'Name (A-Z)', sortNameDesc: 'Name (Z-A)', sortPriceDesc: 'Price (High)', sortPriceAsc: 'Price (Low)', sortChangeDesc: 'Change % (High)', sortChangeAsc: 'Change % (Low)', loadingMarket: 'Loading market data...', loadingAsset: 'Loading asset data...', COMPRE: 'BUY', VENDA: 'SELL', MANTENHA: 'HOLD', BAIXO: 'LOW', MÉDIO: 'MEDIUM', ALTO: 'HIGH', modalAIGenerated: 'AI-Generated Analysis', modalRecommendation: 'Recommendation', modalReasoning: 'Reasoning', modalRisk: 'Risk', modalReturn: 'Potential Return', modalProbabilities: 'Probabilities', backToList: 'Back to List', profile: 'Company Profile', news: 'Recent News', aiAnalysis: 'AI Analysis', aiAnalysisSubtitle: "Click below to get a detailed technical analysis of the asset.", generateAnalysis: 'Generate Analysis', generatingAnalysis: 'Generating Analysis...', refreshAnalysis: "Refresh Analysis", refreshingAnalysis: "Enhancing...", analysisTimestamp: "Analysis generated at:", noNews: 'No recent news available.', loadingNews: 'Fetching news...', aiInsightsTitle: 'AlphaVision AI Insights', aiInsightsDescription: 'Get an AI-generated market summary and highlights.', generateInsights: 'Generate Market Summary', generatingInsights: 'Analyzing Market...', opportunityHighlight: 'Opportunity Highlight', attentionPoint: 'Point of Attention', settings: 'Settings', theme: 'Theme', lightTheme: 'Light', darkTheme: 'Dark', close: 'Close',
+  },
+};
+
+// --- services/localStorageService.ts ---
+const FAVORITES_KEY = 'alphaVisionFavorites';
+const SETTINGS_KEY = 'alphaVisionSettings';
+const loadFavorites = () => {
+  try {
+    const item = window.localStorage.getItem(FAVORITES_KEY);
+    return item ? new Set(JSON.parse(item)) : new Set();
+  } catch (error) {
+    console.error("Error loading favorites from localStorage", error);
+    return new Set();
+  }
+};
+const saveFavorites = (favorites) => {
+  try {
+    const array = Array.from(favorites);
+    window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(array));
+  } catch (error) {
+    console.error("Error saving favorites to localStorage", error);
+  }
+};
+const defaultSettings = { lang: 'pt', currency: 'BRL', theme: 'dark' };
+const loadSettings = () => {
+  try {
+    const item = window.localStorage.getItem(SETTINGS_KEY);
+    return item ? { ...defaultSettings, ...JSON.parse(item) } : defaultSettings;
+  } catch (error) {
+    console.error("Error loading settings from localStorage", error);
+    return defaultSettings;
+  }
+};
+const saveSettings = (settings) => {
+  try {
+    window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch (error) {
+    console.error("Error saving settings to localStorage", error);
+  }
+};
+
+// --- utils/technicalAnalysis.ts ---
+const calculateSMA = (prices, period) => {
+  if (prices.length < period) return null;
+  const sum = prices.slice(-period).reduce((acc, val) => acc + val, 0);
+  return sum / period;
+};
+const calculateEMA = (prices, period) => {
+  const k = 2 / (period + 1);
+  const emaArray = [prices[0]];
+  for (let i = 1; i < prices.length; i++) {
+    emaArray.push(prices[i] * k + emaArray[i - 1] * (1 - k));
+  }
+  return emaArray;
+};
+const calculateRSI = (prices, period = 14) => {
+  if (prices.length <= period) return null;
+  let gains = 0;
+  let losses = 0;
+  for (let i = 1; i <= period; i++) {
+    const change = prices[i] - prices[i - 1];
+    if (change > 0) {
+      gains += change;
+    } else {
+      losses -= change;
+    }
+  }
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
+  for (let i = period + 1; i < prices.length; i++) {
+    const change = prices[i] - prices[i - 1];
+    let currentGain = 0;
+    let currentLoss = 0;
+    if (change > 0) {
+      currentGain = change;
+    } else {
+      currentLoss = -change;
+    }
+    avgGain = (avgGain * (period - 1) + currentGain) / period;
+    avgLoss = (avgLoss * (period - 1) + currentLoss) / period;
+  }
+  if (avgLoss === 0) return 100;
+  const rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+};
+const calculateMACD = (prices, shortPeriod = 12, longPeriod = 26, signalPeriod = 9) => {
+  if (prices.length < longPeriod) return null;
+  const emaShort = calculateEMA(prices, shortPeriod);
+  const emaLong = calculateEMA(prices, longPeriod);
+  const macdLine = emaShort.map((val, index) => val - emaLong[index]);
+  const signalLine = calculateEMA(macdLine, signalPeriod);
+  const lastMacd = macdLine[macdLine.length - 1];
+  const lastSignal = signalLine[signalLine.length - 1];
+  const histogram = lastMacd - lastSignal;
+  return { MACD: lastMacd, signal: lastSignal, histogram: histogram };
+};
+
+// --- constants.ts ---
+const generateChartData = (basePrice, days) => {
+  const data = [];
+  let currentPrice = basePrice;
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    data.push({
+      date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      price: parseFloat(currentPrice.toFixed(2)),
+    });
+    const change = (Math.random() - 0.48) * (basePrice / 25);
+    currentPrice += change;
+    if (currentPrice < 0) currentPrice = 0.1;
+  }
+  return data;
+};
+const getBaseCurrency = (symbol) => {
+  if (/\d$/.test(symbol) && symbol !== 'AURA33' && symbol !== 'G2DI33' && symbol !== 'INBR32') {
+    return 'BRL';
+  }
+  if (symbol.includes('/BRL')) {
+    return 'BRL';
+  }
+  return 'USD';
+};
+const MOCK_ASSETS_BASE = [
+  { id: 'ibovespa', name: 'Ibovespa', symbol: 'IBOV', price: 121635.00, baseCurrency: 'BRL', change: 0, changePercent: 0, chartData: generateChartData(121635.00, 30), logo: 'https://img.icons8.com/color/48/brazil.png', profile: 'O Índice Bovespa é o principal indicador de desempenho das ações negociadas na B3 e reflete o comportamento dos principais papéis do mercado acionário brasileiro.', news: [], },
+  { id: 's&p500', name: 'S&P 500', symbol: 'SPX', price: 5447.87, baseCurrency: 'USD', change: 0, changePercent: 0, chartData: generateChartData(5447.87, 30), logo: 'https://img.icons8.com/color/48/usa.png', profile: 'O S&P 500 é um índice composto por 500 das maiores empresas de capital aberto listadas nas bolsas de valores dos Estados Unidos.', news: [], },
+  { id: 'dowjones', name: 'Dow Jones', symbol: 'DJI', price: 39112.16, baseCurrency: 'USD', change: 0, changePercent: 0, chartData: generateChartData(39112.16, 30), logo: 'https://img.icons8.com/office/48/parse-from-clipboard.png', profile: 'O Dow Jones Industrial Average é um índice que mede o desempenho das ações de 30 das maiores empresas de capital aberto dos Estados Unidos.', news: [], },
+  { id: 'nasdaq', name: 'Nasdaq Composite', symbol: 'IXIC', price: 17717.65, baseCurrency: 'USD', change: 0, changePercent: 0, chartData: generateChartData(17717.65, 30), logo: 'https://img.icons8.com/fluency/48/nasdaq.png', profile: 'O Nasdaq Composite é um índice do mercado de ações das ações ordinárias e títulos semelhantes listados na bolsa de valores NASDAQ.', news: [], },
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', price: 61850.00, baseCurrency: getBaseCurrency('BTC'), change: 0, changePercent: 0, chartData: generateChartData(61850.00, 30), logo: 'https://img.icons8.com/fluency/48/bitcoin.png', profile: 'Bitcoin é uma criptomoeda descentralizada e um sistema de pagamento online.', news: [] },
+  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', price: 3390.00, baseCurrency: getBaseCurrency('ETH'), change: 0, changePercent: 0, chartData: generateChartData(3390.00, 30), logo: 'https://img.icons8.com/fluency/48/ethereum.png', profile: 'Ethereum é uma plataforma descentralizada que executa contratos inteligentes.', news: [] },
+  { id: 'petrobras', name: 'Petrobras', symbol: 'PETR4', price: 38.80, baseCurrency: getBaseCurrency('PETR4'), change: 0, changePercent: 0, chartData: generateChartData(38.80, 30), logo: 'https://img.icons8.com/color/48/gas-station.png', profile: 'A Petrobras é uma empresa de capital aberto, cujo acionista majoritário é o Governo do Brasil.', news: [] },
+  { id: 'nvidia', name: 'NVIDIA Corp', symbol: 'NVDA', price: 126.09, baseCurrency: getBaseCurrency('NVDA'), change: 0, changePercent: 0, chartData: generateChartData(126.09, 30), logo: 'https://img.icons8.com/color/48/nvidia.png', profile: 'A NVIDIA Corporation é uma empresa multinacional de tecnologia que projeta unidades de processamento gráfico (GPUs).', news: [] },
+  { id: 'apple', name: 'Apple Inc.', symbol: 'AAPL', price: 209.75, baseCurrency: getBaseCurrency('AAPL'), change: 0, changePercent: 0, chartData: generateChartData(209.75, 30), logo: 'https://img.icons8.com/ios-filled/50/mac-os.png', profile: 'A Apple Inc. é uma empresa multinacional de tecnologia americana que projeta, desenvolve e vende eletrônicos de consumo.', news: [] },
+  { id: 'magalu', name: 'Magazine Luiza', symbol: 'MGLU3', price: 11.50, baseCurrency: getBaseCurrency('MGLU3'), change: 0, changePercent: 0, chartData: generateChartData(11.50, 30), logo: 'https://img.icons8.com/color/48/shopping-bag--v1.png', profile: 'O Magazine Luiza é uma das maiores redes varejistas do Brasil, com forte presença no comércio eletrônico.', news: [] },
+  { id: 'tesla', name: 'Tesla, Inc.', symbol: 'TSLA', price: 231.20, baseCurrency: getBaseCurrency('TSLA'), change: 0, changePercent: 0, chartData: generateChartData(231.20, 30), logo: 'https://img.icons8.com/fluency/48/tesla-logo.png', profile: 'A Tesla, Inc. é uma empresa automotiva e de energia americana.', news: [] },
+  { id: 'dollar', name: 'Dólar Americano', symbol: 'USD/BRL', price: 5.56, baseCurrency: getBaseCurrency('USD/BRL'), change: 0, changePercent: 0, chartData: generateChartData(5.56, 30), logo: 'https://img.icons8.com/fluency/48/us-dollar-circled.png', profile: 'O Dólar Americano é a moeda oficial dos Estados Unidos.', news: [] },
+  { id: 'vale', name: 'Vale S.A.', symbol: 'VALE3', price: 61.50, baseCurrency: getBaseCurrency('VALE3'), change: 0, changePercent: 0, chartData: generateChartData(61.50, 30), logo: 'https://img.icons8.com/color/48/mining-cart.png', profile: 'A Vale S.A. é uma mineradora multinacional brasileira.', news: [] },
+  { id: 'itau', name: 'Itaú Unibanco', symbol: 'ITUB4', price: 32.70, baseCurrency: getBaseCurrency('ITUB4'), change: 0, changePercent: 0, chartData: generateChartData(32.70, 30), logo: 'https://img.icons8.com/color/48/itau.png', profile: 'O Itaú Unibanco é o maior banco privado do Brasil.', news: [] },
+  { id: 'b3', name: 'B3 S.A.', symbol: 'B3SA3', price: 10.50, baseCurrency: getBaseCurrency('B3SA3'), change: 0, changePercent: 0, chartData: generateChartData(10.50, 30), logo: 'https://img.icons8.com/fluency/48/b3.png', profile: 'A B3 (Brasil, Bolsa, Balcão) é a bolsa de valores oficial do Brasil.', news: [] },
+  { id: 'ambev', name: 'Ambev S.A.', symbol: 'ABEV3', price: 11.90, baseCurrency: getBaseCurrency('ABEV3'), change: 0, changePercent: 0, chartData: generateChartData(11.90, 30), logo: 'https://img.icons8.com/color/48/beer.png', profile: 'A Ambev é uma empresa brasileira dedicada à produção de bebidas.', news: [] },
+  { id: 'microsoft', name: 'Microsoft Corp.', symbol: 'MSFT', price: 430.50, baseCurrency: getBaseCurrency('MSFT'), change: 0, changePercent: 0, chartData: generateChartData(430.50, 30), logo: 'https://img.icons8.com/color/48/microsoft.png', profile: 'A Microsoft Corporation é uma empresa multinacional americana de tecnologia.', news: [] },
+  { id: 'amazon', name: 'Amazon.com, Inc.', symbol: 'AMZN', price: 181.90, baseCurrency: getBaseCurrency('AMZN'), change: 0, changePercent: 0, chartData: generateChartData(181.90, 30), logo: 'https://img.icons8.com/color/48/amazon.png', profile: 'A Amazon.com, Inc. é uma empresa multinacional de tecnologia americana.', news: [] },
+  { id: 'google', name: 'Alphabet Inc.', symbol: 'GOOGL', price: 247.70, baseCurrency: getBaseCurrency('GOOGL'), change: 0, changePercent: 0, chartData: generateChartData(247.70, 30), logo: 'https://img.icons8.com/color/48/google-logo.png', profile: 'A Alphabet Inc. é uma holding e conglomerado de tecnologia.', news: [] },
+  { id: 'euro', name: 'Euro', symbol: 'EUR/BRL', price: 5.98, baseCurrency: getBaseCurrency('EUR/BRL'), change: 0, changePercent: 0, chartData: generateChartData(5.98, 30), logo: 'https://img.icons8.com/fluency/48/euro-money-circulation.png', profile: 'O Euro é a moeda oficial de 20 dos 27 estados-membros da União Europeia.', news: [] },
+];
+const userStockSymbols = [ 'AERI3', 'AFLT3', 'AGXY3', 'RPAD3', 'RPAD5', 'RPAD6', 'AALR3', 'ALLD3', 'ALOS3', 'ALPK3', 'ALPA3', 'ALPA4', 'AVLL3', 'ALUP3', 'ALUP4', 'ALUP11', 'AMBP3', 'AMER3', 'CBEE3', 'ANIM3', 'BVMF:AAPL34', 'ARML3', 'CRFB3', 'ATMP3', 'AURA33', 'AURE3', 'AMOB3', 'AZEV3', 'AZEV4', 'AZUL4', 'AZZA3', 'ABCB4', 'BMGB4', 'BBDC3', 'BBDC4', 'BPAC3', 'BPAC5', 'BPAC11', 'BAZA3', 'BBAS3', 'BGIP3', 'BGIP4', 'BPAR3', 'BRSR3', 'BRSR5', 'BRSR6', 'BNBR3', 'BMIN3', 'BMIN4', 'BMEB3', 'BMEB4', 'BPAN4', 'PINE3', 'PINE4', 'SANB3', 'SANB4', 'SANB11', 'BEES3', 'BEES4', 'BDLL3', 'BDLL4', 'BALM3', 'BALM4', 'BBSE3', 'BMOB3', 'BMKS3', 'BIOM3', 'BLAU3', 'SOJA3', 'BOBR4', 'BRBI11', 'BVMF:BBDC4', 'BRAP3', 'BRAP4', 'AGRO3', 'BRKM3', 'BRKM5', 'BRKM6', 'BRAV3', 'BSLI3', 'BSLI4', 'BRFS3', 'BRST3', 'CEAB3', 'CXSE3', 'BVMF:CXSE3', 'CAMB3', 'CAML3', 'CCRO3', 'MAPT3', 'MAPT4', 'ELET3', 'ELET5', 'ELET6', 'CLSC3', 'CLSC4', 'CLSA3', 'VVEO3', 'COGN3', 'CBAV3', 'PCAR3', 'CASN3', 'GPAR3', 'SBSP3', 'CEDO3', 'CEDO4', 'FESA3', 'FESA4', 'CGAS3', 'CGAS5', 'CEEB3', 'CEEB5', 'PEAB3', 'PEAB4', 'CSMG3', 'SAPR3', 'SAPR4', 'SAPR11', 'CTNM3', 'CTNM4', 'CEGR3', 'CEBR3', 'CEBR5', 'CEBR6', 'COCE3', 'COCE5', 'CEED3', 'HBTS5', 'MSPA3', 'MSPA4', 'CPLE3', 'CPLE5', 'CPLE6', 'CSNA3', 'CTSA3', 'CTSA4', 'ODER4', 'CALI3', 'TEND3', 'CSAN3', 'CPFE3', 'CRPG5', 'CRPG6', 'CSED3', 'CMIN3', 'CSUD3', 'CURY3', 'CVCB3', 'BVMF:CVCB3', 'CYRE3', 'DMVF3', 'DESK3', 'DXCO3', 'DEXP3', 'DEXP4', 'DASA3', 'PNVL3', 'DIRR3', 'DOHL3', 'DOHL4', 'DOTZ3', 'DTCY3', 'ECOR3', 'EALT3', 'EALT4', 'EKTR4', 'LIPR3', 'ELMD3', 'EMAE3', 'EMAE4', 'EPAR3', 'EMBR3', 'PGMN3', 'ENMT3', 'ENMT4', 'ENGI3', 'ENGI4', 'ENGI11', 'CMIG3', 'CMIG4', 'ENEV3', 'EGIE3', 'ENJU3', 'EQPA3', 'EQPA6', 'EQPA5', 'EQTL3', 'ETER3', 'EUCA3', 'EUCA4', 'EVEN3', 'BAUH4', 'EZTC3', 'FHER3', 'FIEI3', 'FLRY3', 'FRAS3', 'G2DI33', 'GFSA3', 'GSHP3', 'GGBR3', 'GGBR4', 'GOLL4', 'GPIV33', 'GGPS3', 'CGRA3', 'CGRA4', 'GRND3', 'BHIA3', 'GMAT3', 'SBFG3', 'GUAR3', 'HAGA3', 'HAGA4', 'HAPV3', 'HBRE3', 'HBOR3', 'HETA4', 'HBSA3', 'MATD3', 'HOOT4', 'HYPE3', 'INDEXBVMF:IBOV', 'IGTI3', 'IGTI4', 'IGTI11', 'INEP3', 'INEP4', 'IFCM3', 'INTB3', 'INBR32', 'MEAL3', 'FIGE3', 'MYPK3', 'RANI3', 'IRBR3', 'ISAE3', 'ISAE4', 'ITUB3', 'BVMF:ITUB4', 'ITSA3', 'ITSA4', 'JALL3', 'JBSS3', 'JHSF3', 'JFEN3', 'JOPA3', 'JOPA4', 'JSLG3', 'CTKA3', 'CTKA4', 'KEPL3', 'KLBN3', 'KLBN4', 'KLBN11', 'KRSA3', 'LAVV3', 'LIGT3', 'LVTC3', 'RENT3', 'LOGG3', 'LOGN3', 'LJQQ3', 'LREN3', 'LPSB3', 'LUPA3', 'LWSA3', 'MDIA3', 'BVMF:MGLU3', 'LEVE3', 'MGEL4', 'ESTR3', 'ESTR4', 'POMO3', 'POMO4', 'MRFG3', 'AMAR3', 'CASH3', 'MELK3', 'MERC4', 'FRIO3', 'GOAU3', 'GOAU4', 'RSUL4', 'MTSA3', 'MTSA4', 'BVMF:MSFT34', 'MILS3', 'BEEF3', 'MNPR3', 'MTRE3', 'MBLY3', 'MOAR3', 'MDNE3', 'MOVI3', 'ESPA3', 'MRSA5B', 'MRSA6B', 'MRSA3B', 'MRVE3', 'MLAS3', 'MULT3', 'MNDL3', 'NTCO3', 'NEOE3', 'NGRD3', 'BVMF:NFLX34', 'NEXP3', 'NORD3', 'NUTR3', 'OPCT3', 'ODPV3', 'OIBR3', 'OIBR4', 'ONCO3', 'ORVR3', 'OSXB3', 'OFSA3', 'PDTC3', 'PATI3', 'PATI4', 'PMAM3', 'PTBL3', 'PDGR3', 'PETZ3', 'BVMF:PETR4', 'RECV3', 'BVMF:RECV3', 'PTNT3', 'PTNT4', 'PLPL3', 'PLAS3', 'PSSA3', 'POSI3', 'PPLA11', 'PRNR3', 'PRIO3', 'PFRM3', 'QUAL3', 'RADL3', 'RAIZ4', 'RAPT3', 'RAPT4', 'RCSL3', 'RCSL4', 'RDOR3', 'REDE3', 'RPMG3', 'BVMF:LREN3', 'RNEW3', 'RNEW4', 'RNEW11', 'GEPA3', 'GEPA4', 'RDNI3', 'ROMI3', 'RSID3', 'RAIL3', 'SNSY3', 'SNSY5', 'SNSY6', 'BVMF:SANB11', 'STBP3', 'SCAR3', 'SMTO3', 'AHEB5', 'AHEB6', 'AHEB3', 'SHUL4', 'ASAI3', 'SEQL3', 'SEER3', 'SRNA3', 'SIMH3', 'SLCE3', 'SMFT3', 'SOND5', 'SOND6', 'SGPS3', 'SUZB3', 'SYNE3', 'SHOW3', 'TASA3', 'TASA4', 'TRAD3', 'TECN3', 'TCSA3', 'TGMA3', 'TEKA3', 'TEKA4', 'TKNO3', 'TKNO4', 'TELB3', 'TELB4', 'VIVT3', 'LAND3', 'TXRX3', 'TXRX4', 'TIMS3', 'TOTS3', 'TPIS3', 'TFCO4', 'TAEE3', 'TAEE4', 'TAEE11', 'TTEN3', 'LUXM4', 'TRIS3', 'CRPG3', 'TUPY3', 'UGPA3', 'UCAS3', 'FIQE3', 'UNIP3', 'UNIP5', 'UNIP6', 'USIM3', 'USIM5', 'USIM6', 'VLID3', 'VAMO3', 'VSTE3', 'VBBR3', 'VTRU3', 'VITT3', 'VIVA3', 'VIVR3', 'VULC3', 'WEGE3', 'WEST3', 'MWET3', 'MWET4', 'WHRL3', 'WHRL4', 'PORT3', 'WIZC3', 'WLMM3', 'WLMM4', 'YDUQ3', 'ZAMP3', 'PETR3' ];
+const stockNames = { 'AERI3': 'Aeris Energy', 'AFLT3': 'Afluente Energia', 'AGXY3': 'AgroGalaxy', 'RPAD3': 'Alfa Holdings', 'RPAD5': 'Alfa Holdings', 'RPAD6': 'Alfa Holdings', 'AALR3': 'Alliar', 'ALLD3': 'Allied', 'ALOS3': 'Allos', 'ALPK3': 'Estapar', 'ALPA3': 'Alpargatas', 'ALPA4': 'Alpargatas', 'AVLL3': 'Alphaville', 'ALUP3': 'Alupar', 'ALUP4': 'Alupar', 'ALUP11': 'Alupar', 'AMBP3': 'Ambipar', 'AMER3': 'Americanas', 'CBEE3': 'CBA Energia', 'ANIM3': 'Ânima Educação', 'BVMF:AAPL34': 'Apple BDR', 'ARML3': 'Armac', 'CRFB3': 'Carrefour Brasil', 'ATMP3': 'Atma', 'AURA33': 'Aura Minerals BDR', 'AURE3': 'Auren Energia', 'AMOB3': 'Automob', 'AZEV3': 'Azevedo & Travassos', 'AZEV4': 'Azevedo & Travassos', 'AZUL4': 'Azul', 'AZZA3': 'Azza', 'ABCB4': 'Banco ABC Brasil', 'BMGB4': 'Banco BMG', 'BBDC3': 'Bradesco', 'BBDC4': 'Bradesco', 'BPAC3': 'BTG Pactual', 'BPAC5': 'BTG Pactual', 'BPAC11': 'BTG Pactual', 'BAZA3': 'Banco da Amazônia', 'BBAS3': 'Banco do Brasil', 'BGIP3': 'Banrisul Armazéns', 'BGIP4': 'Banrisul Armazéns', 'BPAR3': 'Banpará', 'BRSR3': 'Banrisul', 'BRSR5': 'Banrisul', 'BRSR6': 'Banrisul', 'BNBR3': 'Banco do Nordeste', 'BMIN3': 'Banco Mercantil', 'BMIN4': 'Banco Mercantil', 'BMEB3': 'Banco Mercantil', 'BMEB4': 'Banco Mercantil', 'BPAN4': 'Banco Pan', 'PINE3': 'Banco Pine', 'PINE4': 'Banco Pine', 'SANB3': 'Santander Brasil', 'SANB4': 'Santander Brasil', 'SANB11': 'Santander Brasil', 'BEES3': 'Banestes', 'BEES4': 'Banestes', 'BDLL3': 'BRB Banco', 'BDLL4': 'BRB Banco', 'BALM3': 'Baumer', 'BALM4': 'Baumer', 'BBSE3': 'BB Seguridade', 'BMOB3': 'Bemobi', 'BMKS3': 'Monark', 'BIOM3': 'Biomm', 'BLAU3': 'Blau Farmacêutica', 'SOJA3': 'Boa Safra', 'BOBR4': 'Bombril', 'BRBI11': 'Brasil Brokers', 'BVMF:BBDC4': 'Bradesco BDR', 'BRAP3': 'Bradespar', 'BRAP4': 'Bradespar', 'AGRO3': 'BrasilAgro', 'BRKM3': 'Braskem', 'BRKM5': 'Braskem', 'BRKM6': 'Braskem', 'BRAV3': 'Bravia', 'BSLI3': 'BRB', 'BSLI4': 'BRB', 'BRFS3': 'BRF', 'BRST3': 'Braskem', 'CEAB3': 'C&A Modas', 'CXSE3': 'Caixa Seguridade', 'BVMF:CXSE3': 'Caixa Seguridade BDR', 'CAMB3': 'Cambuci', 'CAML3': 'Camil Alimentos', 'CCRO3': 'CCR', 'MAPT3': 'Cemepe', 'MAPT4': 'Cemepe', 'ELET3': 'Eletrobras', 'ELET5': 'Eletrobras', 'ELET6': 'Eletrobras', 'CLSC3': 'Celesc', 'CLSC4': 'Celesc', 'CLSA3': 'Clearsale', 'VVEO3': 'Viveo', 'COGN3': 'Cogna Educação', 'CBAV3': 'CBA', 'PCAR3': 'Pão de Açúcar', 'CASN3': 'Cascan', 'GPAR3': 'Celgpar', 'SBSP3': 'Sabesp', 'CEDO3': 'Cedro Têxtil', 'CEDO4': 'Cedro Têxtil', 'FESA3': 'Ferbasa', 'FESA4': 'Ferbasa', 'CGAS3': 'Comgás', 'CGAS5': 'Comgás', 'CEEB3': 'Coelba', 'CEEB5': 'Coelba', 'PEAB3': 'Celpe', 'PEAB4': 'Celpe', 'CSMG3': 'Copasa', 'SAPR3': 'Sanepar', 'SAPR4': 'Sanepar', 'SAPR11': 'Sanepar', 'CTNM3': 'Coteminas', 'CTNM4': 'Coteminas', 'CEGR3': 'CEG', 'CEBR3': 'CEB', 'CEBR5': 'CEB', 'CEBR6': 'CEB', 'COCE3': 'Coelce', 'COCE5': 'Coelce', 'CEED3': 'CEEE-D', 'HBTS5': 'Habitasul', 'MSPA3': 'Sondotécnica', 'MSPA4': 'Sondotécnica', 'CPLE3': 'Copel', 'CPLE5': 'Copel', 'CPLE6': 'Copel', 'CSNA3': 'CSN', 'CTSA3': 'Santanense', 'CTSA4': 'Santanense', 'ODER4': 'Oderich', 'CALI3': 'A.L. Inc.', 'TEND3': 'Tenda', 'CSAN3': 'Cosan', 'CPFE3': 'CPFL Energia', 'CRPG5': 'Cristal', 'CRPG6': 'Cristal', 'CSED3': 'Cruzeiro do Sul', 'CMIN3': 'CSN Mineração', 'CSUD3': 'CSU', 'CURY3': 'Cury', 'CVCB3': 'CVC Brasil', 'BVMF:CVCB3': 'CVC Brasil BDR', 'CYRE3': 'Cyrela', 'DMVF3': 'd1000 Varejo Farma', 'DESK3': 'Desktop', 'DXCO3': 'Dexco', 'DEXP3': 'Dexxos', 'DEXP4': 'Dexxos', 'DASA3': 'Dasa', 'PNVL3': 'Panvel', 'DIRR3': 'Direcional', 'DOHL3': 'Döhler', 'DOHL4': 'Döhler', 'DOTZ3': 'Dotz', 'DTCY3': 'Traders Club', 'ECOR3': 'Ecorodovias', 'EALT3': 'Electro Aço Altona', 'EALT4': 'Electro Aço Altona', 'EKTR4': 'Elektro', 'LIPR3': 'Eletropar', 'ELMD3': 'Eletromidia', 'EMAE3': 'EMAE', 'EMAE4': 'EMAE', 'EPAR3': 'Embpar', 'EMBR3': 'Embraer', 'PGMN3': 'Pague Menos', 'ENMT3': 'Energisa MT', 'ENMT4': 'Energisa MT', 'ENGI3': 'Energisa', 'ENGI4': 'Energisa', 'ENGI11': 'Energisa', 'CMIG3': 'Cemig', 'CMIG4': 'Cemig', 'ENEV3': 'Eneva', 'EGIE3': 'Engie Brasil', 'ENJU3': 'Enjoei', 'EQPA3': 'Equatorial PA', 'EQPA5': 'Equatorial PA', 'EQPA6': 'Equatorial PA', 'EQTL3': 'Equatorial Energia', 'ETER3': 'Eternit', 'EUCA3': 'Eucatex', 'EUCA4': 'Eucatex', 'EVEN3': 'Even', 'BAUH4': 'Excelsior', 'EZTC3': 'EZTEC', 'FHER3': 'Fert. Heringer', 'FIEI3': 'Fidelidade', 'FLRY3': 'Fleury', 'FRAS3': 'Fras-le', 'G2DI33': 'G2D BDR', 'GFSA3': 'Gafisa', 'GSHP3': 'General Shopping', 'GGBR3': 'Gerdau', 'GGBR4': 'Gerdau', 'GOLL4': 'GOL', 'GPIV33': 'GP Investments BDR', 'GGPS3': 'GPS', 'CGRA3': 'Grazziotin', 'CGRA4': 'Grazziotin', 'GRND3': 'Grendene', 'BHIA3': 'Casas Bahia', 'GMAT3': 'Grupo Mateus', 'SBFG3': 'Grupo SBF', 'GUAR3': 'Guararapes', 'HAGA3': 'Haga', 'HAGA4': 'Haga', 'HAPV3': 'Hapvida', 'HBRE3': 'HBR Realty', 'HBOR3': 'Helbor', 'HETA4': 'Hercules', 'HBSA3': 'Hidrovias do Brasil', 'MATD3': 'Mater Dei', 'HOOT4': 'Hotéis Othon', 'HYPE3': 'Hypera', 'INDEXBVMF:IBOV': 'Ibovespa', 'IGTI3': 'Iguatemi', 'IGTI4': 'Iguatemi', 'IGTI11': 'Iguatemi', 'INEP3': 'Inepar', 'INEP4': 'Inepar', 'IFCM3': 'Infracommerce', 'INTB3': 'Intelbras', 'INBR32': 'Inter & Co BDR', 'MEAL3': 'IMC', 'FIGE3': 'Investbens', 'MYPK3': 'Iochpe-Maxion', 'RANI3': 'Irani', 'IRBR3': 'IRB Brasil RE', 'ISAE3': 'ISA CTEEP', 'ISAE4': 'ISA CTEEP', 'ITUB3': 'Itaú Unibanco', 'BVMF:ITUB4': 'Itaú Unibanco BDR', 'ITSA3': 'Itaúsa', 'ITSA4': 'Itaúsa', 'JALL3': 'Jalles Machado', 'JBSS3': 'JBS', 'JHSF3': 'JHSF', 'JFEN3': 'João Fortes', 'JOPA3': 'Josapar', 'JOPA4': 'Josapar', 'JSLG3': 'JSL', 'CTKA3': 'Karsten', 'CTKA4': 'Karsten', 'KEPL3': 'Kepler Weber', 'KLBN3': 'Klabin', 'KLBN4': 'Klabin', 'KLBN11': 'Klabin', 'KRSA3': 'Kora Saúde', 'LAVV3': 'Lavvi', 'LIGT3': 'Light', 'LVTC3': 'WDC Networks', 'RENT3': 'Localiza', 'LOGG3': 'Log-In', 'LOGN3': 'Log-In', 'LJQQ3': 'Lojas Quero-Quero', 'LREN3': 'Lojas Renner', 'LPSB3': 'Lopes', 'LUPA3': 'Lupatech', 'LWSA3': 'Locaweb', 'MDIA3': 'M. Dias Branco', 'BVMF:MGLU3': 'Magazine Luiza BDR', 'LEVE3': 'Metal Leve', 'MGEL4': 'Mangels', 'ESTR3': 'Marcopolo', 'ESTR4': 'Marcopolo', 'POMO3': 'Marcopolo', 'POMO4': 'Marcopolo', 'MRFG3': 'Marfrig', 'AMAR3': 'Marisa', 'CASH3': 'Méliuz', 'MELK3': 'Melnick', 'MERC4': 'Mercantil do Brasil', 'FRIO3': 'Metalfrio', 'GOAU3': 'Metal. Gerdau', 'GOAU4': 'Metal. Gerdau', 'RSUL4': 'Metal. Riosulense', 'MTSA3': 'MTS', 'MTSA4': 'MTS', 'BVMF:MSFT34': 'Microsoft BDR', 'MILS3': 'Mills', 'BEEF3': 'Minerva', 'MNPR3': 'Minupar', 'MTRE3': 'Mitre', 'MBLY3': 'Mobly', 'MOAR3': 'Montecarlos', 'MDNE3': 'Modalmais', 'MOVI3': 'Movida', 'ESPA3': 'Espaçolaser', 'MRSA5B': 'MRS Logística', 'MRSA6B': 'MRS Logística', 'MRSA3B': 'MRS Logística', 'MRVE3': 'MRV', 'MLAS3': 'Multilaser', 'MULT3': 'Multiplan', 'MNDL3': 'Mundial', 'NTCO3': 'Natura &Co', 'NEOE3': 'Neoenergia', 'NGRD3': 'Neogrid', 'BVMF:NFLX34': 'Netflix BDR', 'NEXP3': 'Nexpe', 'NORD3': 'Nordon', 'NUTR3': 'Nutriplant', 'OPCT3': 'Oceanpact', 'ODPV3': 'Odontoprev', 'OIBR3': 'Oi', 'OIBR4': 'Oi', 'ONCO3': 'Oncoclínicas', 'ORVR3': 'Ouro Verde', 'OSXB3': 'OSX Brasil', 'OFSA3': 'Ourofino', 'PDTC3': 'Padtec', 'PATI3': 'Panatlântica', 'PATI4': 'Panatlântica', 'PMAM3': 'Paranapanema', 'PTBL3': 'Portobello', 'PDGR3': 'PDG Realty', 'PETZ3': 'Petz', 'BVMF:PETR4': 'Petrobras BDR', 'RECV3': 'PetroRecôncavo', 'BVMF:RECV3': 'PetroRecôncavo BDR', 'PTNT3': 'Pettenati', 'PTNT4': 'Pettenati', 'PLPL3': 'Plano & Plano', 'PLAS3': 'Plascar', 'PSSA3': 'Porto Seguro', 'POSI3': 'Positivo', 'PPLA11': 'Polo', 'PRNR3': 'Priner', 'PRIO3': 'PetroRio', 'PFRM3': 'Profarma', 'QUAL3': 'Qualicorp', 'RADL3': 'RaiaDrogasil', 'RAIZ4': 'Raízen', 'RAPT3': 'Randon', 'RAPT4': 'Randon', 'RCSL3': 'Recrusul', 'RCSL4': 'Recrusul', 'RDOR3': 'Rede D\'Or', 'REDE3': 'Rede Energia', 'RPMG3': 'Ref. Manguinhos', 'BVMF:LREN3': 'Lojas Renner BDR', 'RNEW3': 'Renova Energia', 'RNEW4': 'Renova Energia', 'RNEW11': 'Renova Energia', 'GEPA3': 'Rio Paranapanema', 'GEPA4': 'Rio Paranapanema', 'RDNI3': 'RNI', 'ROMI3': 'Romi', 'RSID3': 'Rossi Residencial', 'RAIL3': 'Rumo', 'SNSY3': 'Sansuy', 'SNSY5': 'Sansuy', 'SNSY6': 'Sansuy', 'BVMF:SANB11': 'Santander BDR', 'STBP3': 'Santos Brasil', 'SCAR3': 'São Carlos', 'SMTO3': 'São Martinho', 'AHEB5': 'São Paulo Turismo', 'AHEB6': 'São Paulo Turismo', 'AHEB3': 'São Paulo Turismo', 'SHUL4': 'Schulz', 'ASAI3': 'Açaí', 'SEQL3': 'Sequoia', 'SEER3': 'Ser Educacional', 'SRNA3': 'SRNA', 'SIMH3': 'Simpar', 'SLCE3': 'SLC Agrícola', 'SMFT3': 'Smartfit', 'SOND5': 'Sondotécnica', 'SOND6': 'Sondotécnica', 'SGPS3': 'Springs Global', 'SUZB3': 'Suzano', 'SYNE3': 'SYN', 'SHOW3': 'Time For Fun', 'TASA3': 'Taurus', 'TASA4': 'Taurus', 'TRAD3': 'Traders Club', 'TECN3': 'Technos', 'TCSA3': 'Tecnisa', 'TGMA3': 'Tegma', 'TEKA3': 'Teka', 'TEKA4': 'Teka', 'TKNO3': 'Tekno', 'TKNO4': 'Tekno', 'TELB3': 'Telebras', 'TELB4': 'Telebras', 'VIVT3': 'Vivo', 'LAND3': 'Terra Santa', 'TXRX3': 'Têxtil Renaux', 'TXRX4': 'Têxtil Renaux', 'TIMS3': 'TIM', 'TOTS3': 'Totvs', 'TPIS3': 'TPI', 'TFCO4': 'Track & Field', 'TAEE3': 'Taesa', 'TAEE4': 'Taesa', 'TAEE11': 'Taesa', 'TTEN3': '3tentos', 'LUXM4': 'Trisul', 'TRIS3': 'Trisul', 'CRPG3': 'Tronox', 'TUPY3': 'Tupy', 'UGPA3': 'Ultrapar', 'UCAS3': 'Unicasa', 'FIQE3': 'Unifique', 'UNIP3': 'Unipar', 'UNIP5': 'Unipar', 'UNIP6': 'Unipar', 'USIM3': 'Usiminas', 'USIM5': 'Usiminas', 'USIM6': 'Usiminas', 'VLID3': 'Valid', 'VAMO3': 'Vamos', 'VSTE3': 'Veste', 'VBBR3': 'Vibra Energia', 'VTRU3': 'Votorantim', 'VITT3': 'Vittia', 'VIVA3': 'Vivara', 'VIVR3': 'Viver', 'VULC3': 'Vulcabras', 'WEGE3': 'WEG', 'WEST3': 'Westwing', 'MWET3': 'WLM', 'MWET4': 'WLM', 'WHRL3': 'Whirlpool', 'WHRL4': 'Whirlpool', 'PORT3': 'Wilson Sons', 'WIZC3': 'Wiz', 'WLMM3': 'WLM', 'WLMM4': 'WLM', 'YDUQ3': 'Yduqs', 'ZAMP3': 'Zamp (BK)', 'PETR3': 'Petrobras' };
+const CORRECTED_PRICES = { 'AERI3': 4.11, 'RPAD5': 4.76, 'RPAD6': 4.76, 'RECV3': 13.16, 'WEGE3': 38.50, 'RAIL3': 20.25, 'SUZB3': 48.70, 'ITSA4': 10.15, 'BBDC4': 12.80, 'BBAS3': 27.00, 'USIM5': 7.50, 'GGBR4': 17.80, 'AZUL4': 4.60, 'CVCB3': 2.05, 'AMER3': 0.42, 'ASAI3': 11.10, 'BRFS3': 18.55, 'CCRO3': 12.10, 'CMIG4': 11.20, 'CRFB3': 9.15, 'CSNA3': 13.05, 'CYRE3': 19.50, 'ELET3': 35.50, 'ELET6': 40.20, 'EMBR3': 37.80, 'EQTL3': 30.15, 'GOLL4': 1.25, 'HAPV3': 3.85, 'IRBR3': 31.40, 'JBSS3': 30.60, 'KLBN4': 4.50, 'KLBN11': 20.30, 'LREN3': 13.20, 'MULT3': 23.40, 'NTCO3': 14.50, 'OIBR3': 0.65, 'PCAR3': 2.85, 'PETR3': 40.50, 'PRIO3': 45.90, 'QUAL3': 1.75, 'RADL3': 26.80, 'RDOR3': 27.20, 'RENT3': 43.50, 'SANB11': 28.10, 'SBSP3': 78.50, 'TAEE11': 35.20, 'UGPA3': 25.40, 'VBBR3': 21.30, 'VIVT3': 40.80, 'YDUQ3': 11.30, };
+const baseSymbols = new Set(MOCK_ASSETS_BASE.map(asset => asset.symbol));
+const newUniqueSymbols = [...new Set(userStockSymbols)].filter(symbol => !baseSymbols.has(symbol));
+const generatedAssets = newUniqueSymbols.map(symbol => {
+  const price = CORRECTED_PRICES[symbol] || Math.random() * (150 - 0.5) + 0.5;
+  const change = (Math.random() - 0.5) * (price / 15);
+  const changePercent = (change / price) * 100;
+  const baseCurrency = getBaseCurrency(symbol);
+  return { id: symbol.toLowerCase().replace(/[:.]/g, '_'), name: stockNames[symbol] || symbol, symbol: symbol, price: parseFloat(price.toFixed(2)), baseCurrency, change: parseFloat(change.toFixed(2)), changePercent: parseFloat(changePercent.toFixed(2)), chartData: generateChartData(price, 30), logo: 'https://img.icons8.com/office/48/bank-building.png', profile: 'Perfil da empresa não disponível no momento.', news: [], };
+});
+const MOCK_ASSETS = [...MOCK_ASSETS_BASE, ...generatedAssets];
+
+// --- services/geminiService.ts ---
+const ai = GOOGLE_API_KEY ? new GoogleGenAI({ apiKey: GOOGLE_API_KEY }) : null;
+const createApiKeyError = (reasoningText) => ({
+  recommendation: 'MANTENHA',
+  reasoning: reasoningText,
+  risk: 'MÉDIO',
+  potentialReturn: 'Indeterminado',
+  probabilities: { up: 50, down: 50 },
+});
+const fetchNewsForAsset = async (assetName) => {
+  if (!ai) return [];
+  try {
+    const prompt = `Encontre 3 notícias recentes e relevantes sobre "${assetName}".`;
+    const response = await ai.models.generateContent({ model: "gemini-2.5-flash", contents: prompt, config: { tools: [{ googleSearch: {} }] } });
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+    if (groundingChunks && groundingChunks.length > 0) {
+      return groundingChunks.map((chunk) => {
+        const url = new URL(chunk.web.uri);
+        return { title: chunk.web.title, url: chunk.web.uri, source: url.hostname.replace('www.', ''), date: new Date().toLocaleDateString('pt-BR'), };
+      });
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching real-time news with Gemini:", error);
+    return [];
+  }
+};
+const generateAnalysis = async (asset, rsi, macd, smas) => {
+  if (!ai) return createApiKeyError('Chave de API do Google não configurada. Adicione sua chave no topo do arquivo index.html para habilitar a análise de IA.');
+  const prices = asset.chartData.map(d => d.price);
+  const recentPrices = prices.slice(-10).map(p => p.toFixed(2)).join(', ');
+  const prompt = `Você é um analista financeiro de IA. Analise o seguinte ativo financeiro e forneça uma recomendação de investimento. Ativo: ${asset.name} (${asset.symbol}), Preço Atual: ${asset.price.toFixed(2)} ${asset.baseCurrency}, Dados de Preços Recentes (últimos 10 dias): ${recentPrices}. Indicadores Técnicos Atuais: RSI (14 dias): ${rsi ? rsi.toFixed(2) : 'N/A'}, Médias Móveis Simples (MMS): Curta (10 dias) = ${smas.short ? smas.short.toFixed(2) : 'N/A'}, Longa (20 dias) = ${smas.long ? smas.long.toFixed(2) : 'N/A'}, MACD (12,26,9): Linha MACD = ${macd ? macd.MACD.toFixed(2) : 'N/A'}, Linha de Sinal = ${macd ? macd.signal.toFixed(2) : 'N/A'}. Com base nesses dados e indicadores, forneça uma análise técnica concisa. Justifique sua recomendação. Responda em JSON com a estrutura: { recommendation: 'COMPRE'|'VENDA'|'MANTENHA', reasoning: string, risk: 'BAIXO'|'MÉDIO'|'ALTO', potentialReturn: string, probabilities: { up: number, down: number } }`;
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash", contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            recommendation: { type: Type.STRING, enum: ['COMPRE', 'VENDA', 'MANTENHA'] },
+            reasoning: { type: Type.STRING },
+            risk: { type: Type.STRING, enum: ['BAIXO', 'MÉDIO', 'ALTO'] },
+            potentialReturn: { type: Type.STRING },
+            probabilities: { type: Type.OBJECT, properties: { up: { type: Type.NUMBER }, down: { type: Type.NUMBER } }, required: ['up', 'down'] },
+          },
+          required: ['recommendation', 'reasoning', 'risk', 'potentialReturn', 'probabilities'],
+        },
+      },
+    });
+    const analysis = JSON.parse(response.text.trim());
+    if (analysis.recommendation && analysis.reasoning && analysis.probabilities) return analysis;
+    throw new Error("Invalid analysis format from AI");
+  } catch (error) {
+    console.error("Error generating AI analysis with Gemini:", error);
+    return createApiKeyError('Não foi possível gerar a análise da IA no momento devido a um erro. Por favor, tente novamente mais tarde.');
+  }
+};
+const generateMarketInsights = async (assets) => {
+    if (!ai) return { marketTrend: 'A análise de mercado da IA não está disponível. Por favor, configure sua chave de API do Google no topo do arquivo index.html.', opportunity: { symbol: 'N/A', reasoning: '' }, attentionPoint: { symbol: 'N/A', reasoning: '' } };
+  const assetSummaries = assets.slice(0, 8).map(a => `${a.name} (${a.symbol}): Preço ${a.price.toFixed(2)}, Variação ${a.changePercent.toFixed(2)}%`).join('; ');
+  const prompt = `Você é um analista de mercado de IA da AlphaVision. Com base nos dados: ${assetSummaries}. Identifique: 1. Uma tendência geral do mercado. 2. Um ativo como "Oportunidade em Destaque" (símbolo e justificativa curta). 3. Um ativo como "Ponto de Atenção" (símbolo e justificativa curta). Responda em JSON com a estrutura: { marketTrend: string, opportunity: { symbol: string, reasoning: string }, attentionPoint: { symbol: string, reasoning: string } }`;
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash", contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            marketTrend: { type: Type.STRING },
+            opportunity: { type: Type.OBJECT, properties: { symbol: { type: Type.STRING }, reasoning: { type: Type.STRING } }, required: ['symbol', 'reasoning'] },
+            attentionPoint: { type: Type.OBJECT, properties: { symbol: { type: Type.STRING }, reasoning: { type: Type.STRING } }, required: ['symbol', 'reasoning'] },
+          },
+          required: ['marketTrend', 'opportunity', 'attentionPoint'],
+        },
+      },
+    });
+    return JSON.parse(response.text.trim());
+  } catch (error) {
+    console.error("Error generating market insights with Gemini:", error);
+    return { marketTrend: 'A análise de mercado da IA não está disponível no momento. Tente novamente.', opportunity: { symbol: 'N/A', reasoning: '' }, attentionPoint: { symbol: 'N/A', reasoning: '' }, };
+  }
+};
+
+// --- services/marketDataService.ts ---
+let currentAssets = JSON.parse(JSON.stringify(MOCK_ASSETS));
+let initialPrices = new Map();
+const fetchInitialPrices = async () => {
+  const cryptoAssets = currentAssets.filter(a => ['BTC', 'ETH'].includes(a.symbol));
+  try {
+    const pricePromises = cryptoAssets.map(async (asset) => {
+      const symbol = asset.symbol === 'BTC' ? 'btcusd' : 'ethusd';
+      const response = await fetch(`https://api.gemini.com/v1/pubticker/${symbol}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return { id: asset.id, price: parseFloat(data.last) };
+    });
+    const results = await Promise.all(pricePromises);
+    results.forEach(result => {
+      if (result) {
+        const assetIndex = currentAssets.findIndex(a => a.id === result.id);
+        if (assetIndex !== -1) currentAssets[assetIndex].price = result.price;
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching initial crypto prices:", error);
+  }
+  initialPrices = new Map(currentAssets.map(asset => [asset.id, asset.price]));
+};
+function isB3MarketOpen() {
+  try {
+    const now = new Date();
+    const spTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    const dayOfWeek = spTime.getDay();
+    const hour = spTime.getHours();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return false;
+    if (hour >= 10 && hour < 17) return true;
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+const simulateMarketUpdates = () => {
+  const marketOpen = isB3MarketOpen();
+  currentAssets = currentAssets.map(asset => {
+    const isB3Stock = asset.baseCurrency === 'BRL' && /\d$/.test(asset.symbol) && !asset.symbol.includes('/');
+    if (isB3Stock && !marketOpen) return asset;
+    const fluctuation = (Math.random() - 0.495) * 0.01;
+    const newPrice = asset.price * (1 + fluctuation);
+    const initialPrice = initialPrices.get(asset.id);
+    const newChange = newPrice - initialPrice;
+    const newChangePercent = (newChange / initialPrice) * 100;
+    const pricePrecision = asset.price < 10 ? 4 : 2;
+    return { ...asset, price: parseFloat(newPrice.toFixed(pricePrecision)), change: parseFloat(newChange.toFixed(pricePrecision)), changePercent: parseFloat(newChangePercent.toFixed(2)), };
+  });
+};
+let intervalId;
+const subscribeToMarketData = (onUpdate) => {
+  if (intervalId) clearInterval(intervalId);
+  onUpdate([...currentAssets]);
+  fetchInitialPrices().then(() => {
+    onUpdate([...currentAssets]);
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(() => {
+      simulateMarketUpdates();
+      onUpdate([...currentAssets]);
+    }, 2500);
+  });
+  return () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = undefined;
+    }
+  };
+};
+
+// --- contexts.tsx ---
+const SettingsContext = createContext(undefined);
+const CONVERSION_RATES = { USD: 1, BRL: 5.43, EUR: 0.93, GBP: 0.79 };
+const SettingsProvider = ({ children }) => {
+  const [settings, setSettings] = useState(loadSettings);
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(settings.theme);
+  }, [settings.theme]);
+  useEffect(() => { saveSettings(settings); }, [settings]);
+  const setLang = (lang) => setSettings(s => ({ ...s, lang }));
+  const setCurrency = (currency) => setSettings(s => ({ ...s, currency }));
+  const setTheme = (theme) => setSettings(s => ({ ...s, theme }));
+  const convertCurrency = (value, from, to) => {
+    if (from === to) return value;
+    const fromRate = from === 'BRL' ? CONVERSION_RATES.BRL : CONVERSION_RATES[from];
+    const valueInUSD = value / fromRate;
+    return valueInUSD * CONVERSION_RATES[to];
+  };
+  const formatCurrency = (value, baseCurrency) => {
+    const convertedValue = convertCurrency(value, baseCurrency, settings.currency);
+    return new Intl.NumberFormat(settings.lang === 'pt' ? 'pt-BR' : 'en-US', { style: 'currency', currency: settings.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(convertedValue);
+  };
+  const value = useMemo(() => ({ ...settings, setLang, setCurrency, setTheme, formatCurrency, convertCurrency }), [settings]);
+  return React.createElement(SettingsContext.Provider, { value: value }, children);
+};
+const useSettings = () => {
+  const context = useContext(SettingsContext);
+  if (context === undefined) throw new Error('useSettings must be used within a SettingsProvider');
+  return context;
+};
+const useLanguage = () => {
+  const { lang, setLang } = useSettings();
+  return { lang, setLang };
+};
+const useCurrency = () => {
+  const { currency, setCurrency, formatCurrency, convertCurrency } = useSettings();
+  return { currency, setCurrency, formatCurrency, convertCurrency };
+};
+
+// --- components ---
+const LoadingSpinner = ({ size = 'h-8 w-8' }) => React.createElement('div', { className: `animate-spin rounded-full border-4 border-slate-700 border-t-sky-400 ${size}` });
+
+const CustomTooltip = ({ active, payload, label }) => {
+  const { lang } = useLanguage();
+  const { currency } = useCurrency();
+  const t = translations[lang];
+  if (active && payload && payload.length) {
+    const formattedPrice = new Intl.NumberFormat(lang === 'pt' ? 'pt-BR' : 'en-US', { style: 'currency', currency: currency }).format(payload[0].value);
+    return React.createElement('div', { className: "bg-white dark:bg-slate-800 p-2 border border-gray-200 dark:border-slate-700 rounded-md shadow-lg" },
+      React.createElement('p', { className: "label text-gray-600 dark:text-slate-300" }, `${t.chartDate}: ${label}`),
+      React.createElement('p', { className: "intro text-sky-500 dark:text-sky-400 font-bold" }, `${t.chartPrice}: ${formattedPrice}`)
+    );
+  }
+  return null;
+};
+
+const Chart = ({ data, color }) => {
+  const { lang } = useLanguage();
+  const { currency } = useCurrency();
+  const { theme } = useSettings();
+  const tickColor = theme === 'dark' ? '#94a3b8' : '#6b7280';
+  const axisColor = theme === 'dark' ? '#475569' : '#d1d5db';
+  const gridColor = theme === 'dark' ? '#334155' : '#e5e7eb';
+  const yAxisTickFormatter = (tick) => new Intl.NumberFormat(lang === 'pt' ? 'pt-BR' : 'en-US', { style: 'currency', currency: currency, notation: 'compact', compactDisplay: 'short' }).format(tick);
+  return React.createElement(ResponsiveContainer, { width: "100%", height: 200 },
+    React.createElement(LineChart, { data: data, margin: { top: 5, right: 20, left: -10, bottom: 5 } },
+      React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: gridColor }),
+      React.createElement(XAxis, { dataKey: "date", tick: { fill: tickColor }, fontSize: 12, axisLine: { stroke: axisColor }, tickLine: { stroke: axisColor } }),
+      React.createElement(YAxis, { tick: { fill: tickColor }, fontSize: 12, axisLine: { stroke: axisColor }, tickLine: { stroke: axisColor }, domain: ['dataMin - dataMin * 0.05', 'dataMax + dataMax * 0.05'], tickFormatter: yAxisTickFormatter }),
+      React.createElement(Tooltip, { content: React.createElement(CustomTooltip) }),
+      React.createElement(Line, { type: "monotone", dataKey: "price", stroke: color, strokeWidth: 2, dot: false })
+    )
+  );
+};
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => { ref.current = value; });
+  return ref.current;
+}
+
+const AssetCard = ({ asset, isFavorite, onToggleFavorite }) => {
+  const { formatCurrency } = useCurrency();
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  const [flashColor, setFlashColor] = useState('');
+  const prevPrice = usePrevious(asset.price);
+  useEffect(() => {
+    if (prevPrice !== undefined && asset.price !== prevPrice) {
+      setFlashColor(asset.price > prevPrice ? 'bg-emerald-500/10' : 'bg-red-500/10');
+      const timer = setTimeout(() => setFlashColor(''), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [asset.price, prevPrice]);
+  const isPositive = asset.changePercent >= 0;
+  const changeColor = isPositive ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
+  const changeSymbol = isPositive ? '▲' : '▼';
+  const handleFavoriteClick = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    onToggleFavorite(asset.id);
+  };
+  const handleNavigate = () => { if (window.location.hash !== `#/asset/${asset.id}`) window.location.hash = `#/asset/${asset.id}`; };
+  return React.createElement('div', { className: `relative bg-white dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-sky-500/10 hover:-translate-y-1 ${flashColor}`},
+    React.createElement('button', { onClick: handleFavoriteClick, title: isFavorite ? t.removeFromFavorites : t.addToFavorites, className: "absolute top-3 right-3 text-gray-400 dark:text-slate-500 hover:text-yellow-400 transition-colors z-20 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400", 'aria-label': isFavorite ? t.removeFromFavorites : t.addToFavorites },
+      React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-6 w-6", viewBox: "0 0 24 24", fill: isFavorite ? '#facc15' : 'none', stroke: isFavorite ? '#facc15' : 'currentColor', strokeWidth: "2" },
+        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.05 10.1c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" })
+      )
+    ),
+    React.createElement('div', { className: "block p-5 h-full cursor-pointer", onClick: handleNavigate, role: "link", 'aria-label': `View details for ${asset.name}`, tabIndex: 0, onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigate(); } } },
+      React.createElement('div', { className: "flex items-center gap-4 mb-4" },
+        React.createElement('img', { src: asset.logo, alt: `${asset.name} logo`, className: "w-10 h-10", style: { filter: asset.symbol === 'AAPL' ? 'invert(1)' : 'none' } }),
+        React.createElement('div', null,
+          React.createElement('h3', { className: "text-xl font-bold text-gray-800 dark:text-slate-100" }, asset.name),
+          React.createElement('p', { className: "text-sm text-gray-500 dark:text-slate-400" }, asset.symbol)
+        )
+      ),
+      React.createElement('div', null,
+        React.createElement('p', { className: "text-3xl font-semibold text-gray-900 dark:text-slate-50" }, formatCurrency(asset.price, asset.baseCurrency)),
+        React.createElement('div', { className: `flex items-center gap-2 text-md font-medium ${changeColor} transition-colors duration-300` },
+          React.createElement('span', null, `${changeSymbol} ${formatCurrency(asset.change, asset.baseCurrency)}`),
+          React.createElement('span', null, `(${asset.changePercent.toFixed(2)}%)`)
+        )
+      )
+    )
+  );
+};
+
+const AssetGrid = ({ assets, favorites, onToggleFavorite }) => React.createElement('div', { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" }, assets.map(asset => React.createElement(AssetCard, { key: asset.id, asset: asset, isFavorite: favorites.has(asset.id), onToggleFavorite: onToggleFavorite })));
+
+const MarketOverviewItem = ({ asset }) => {
+  const { formatCurrency } = useCurrency();
+  const isPositive = asset.changePercent >= 0;
+  const changeColor = isPositive ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
+  const changeSymbol = isPositive ? '+' : '';
+  return React.createElement('div', { className: "flex items-center flex-shrink-0 mx-4" },
+    React.createElement('p', { className: "text-sm font-bold text-gray-700 dark:text-slate-300 mr-2" }, asset.symbol),
+    React.createElement('p', { className: "text-sm font-semibold text-gray-900 dark:text-slate-50 mr-3" }, formatCurrency(asset.price, asset.baseCurrency)),
+    React.createElement('div', { className: `text-sm font-medium ${changeColor}` },
+      React.createElement('span', null, `${changeSymbol}${asset.changePercent.toFixed(2)}%`)
+    )
+  );
+};
+
+const MarketOverview = ({ assets }) => {
+  if (!assets || assets.length === 0) return null;
+  const sortedAssets = [...assets].sort((a, b) => a.symbol.localeCompare(b.symbol));
+  const duplicatedAssets = [...sortedAssets, ...sortedAssets];
+  return React.createElement('div', { className: "mb-8 relative overflow-hidden group bg-gray-50 dark:bg-slate-800/50 border-y border-gray-200 dark:border-slate-700 py-3" },
+    React.createElement('div', { className: "flex animate-marquee" }, duplicatedAssets.map((asset, index) => React.createElement(MarketOverviewItem, { key: `${asset.id}-${index}`, asset: asset }))),
+    React.createElement('div', { className: "absolute inset-0 bg-gradient-to-r from-white dark:from-slate-900 via-transparent to-white dark:to-slate-900 pointer-events-none" })
+  );
+};
+
+const AIInsights = ({ insights, isLoading, onGenerate, findAssetLogo }) => {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  const renderInitialState = () => React.createElement('div', { className: "text-center" },
+    React.createElement('h3', { className: "text-lg font-semibold text-gray-700 dark:text-slate-300 mb-2" }, t.aiInsightsTitle),
+    React.createElement('p', { className: "text-gray-500 dark:text-slate-400 mb-4" }, t.aiInsightsDescription),
+    React.createElement('button', { onClick: onGenerate, disabled: isLoading, className: "flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-600 disabled:bg-sky-500/50 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300 mx-auto" },
+      isLoading ? React.createElement(LoadingSpinner, { size: "h-5 w-5" }) : null,
+      isLoading ? t.generatingInsights : t.generateInsights
+    )
+  );
+  const renderInsights = () => {
+    if (!insights) return null;
+    const opportunityLogo = findAssetLogo(insights.opportunity.symbol);
+    const attentionLogo = findAssetLogo(insights.attentionPoint.symbol);
+    return React.createElement('div', null,
+      React.createElement('div', { className: "flex justify-between items-center mb-4" },
+        React.createElement('h3', { className: "text-lg font-semibold text-gray-700 dark:text-slate-300" }, t.aiInsightsTitle),
+        React.createElement('button', { onClick: onGenerate, disabled: isLoading, className: "flex items-center justify-center gap-2 text-sm text-sky-500 hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors" },
+          isLoading ? React.createElement(LoadingSpinner, { size: "h-4 w-4" }) : React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-4 w-4", viewBox: "0 0 20 20", fill: "currentColor" },
+            React.createElement('path', { fillRule: "evenodd", d: "M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 110 2H4a1 1 0 01-1-1V4a1 1 0 011-1zm10 15a1 1 0 01-1-1v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 111.885-.666A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v4a1 1 0 01-1 1z", clipRule: "evenodd" })
+          ),
+          t.refreshAnalysis
+        )
+      ),
+      React.createElement('p', { className: "text-center italic text-gray-600 dark:text-slate-400 mb-6 text-sm" }, `"${insights.marketTrend}"`),
+      React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
+        React.createElement('div', { className: "bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/20 rounded-lg p-4 flex gap-4" },
+          React.createElement('div', { className: "flex-shrink-0" }, React.createElement('div', { className: "w-12 h-12 bg-emerald-100 dark:bg-slate-800 rounded-full flex items-center justify-center" }, opportunityLogo ? React.createElement('img', { src: opportunityLogo, alt: insights.opportunity.symbol, className: "w-8 h-8" }) : React.createElement('span', { className: "text-2xl" }, '💡'))),
+          React.createElement('div', null,
+            React.createElement('h4', { className: "font-bold text-emerald-700 dark:text-emerald-400" }, t.opportunityHighlight),
+            React.createElement('p', { className: "text-sm text-gray-800 dark:text-slate-200 font-semibold mb-1" }, insights.opportunity.symbol),
+            React.createElement('p', { className: "text-xs text-gray-600 dark:text-slate-300" }, insights.opportunity.reasoning)
+          )
+        ),
+        React.createElement('div', { className: "bg-yellow-500/10 dark:bg-yellow-500/20 border border-yellow-500/20 rounded-lg p-4 flex gap-4" },
+          React.createElement('div', { className: "flex-shrink-0" }, React.createElement('div', { className: "w-12 h-12 bg-yellow-100 dark:bg-slate-800 rounded-full flex items-center justify-center" }, attentionLogo ? React.createElement('img', { src: attentionLogo, alt: insights.attentionPoint.symbol, className: "w-8 h-8" }) : React.createElement('span', { className: "text-2xl" }, '⚠️'))),
+          React.createElement('div', null,
+            React.createElement('h4', { className: "font-bold text-yellow-700 dark:text-yellow-500" }, t.attentionPoint),
+            React.createElement('p', { className: "text-sm text-gray-800 dark:text-slate-200 font-semibold mb-1" }, insights.attentionPoint.symbol),
+            React.createElement('p', { className: "text-xs text-gray-600 dark:text-slate-300" }, insights.attentionPoint.reasoning)
+          )
+        )
+      )
+    );
+  };
+  return React.createElement('div', { className: "mb-8 bg-white dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-6 animate-fade-in-up" }, insights && !isLoading ? renderInsights() : renderInitialState());
+};
+
+const Controls = ({ searchTerm, onSearchChange, sortValue, onSortChange, showFavoritesOnly, onShowFavoritesChange }) => {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  return React.createElement('div', { className: "mb-8 flex flex-col sm:flex-row gap-4 items-center flex-wrap" },
+    React.createElement('div', { className: "relative w-full sm:flex-grow" },
+      React.createElement('div', { className: "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" }, React.createElement('svg', { className: "w-5 h-5 text-gray-400 dark:text-slate-400", xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" }, React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" }))),
+      React.createElement('input', { type: "text", placeholder: t.searchPlaceholder, value: searchTerm, onChange: onSearchChange, className: "w-full bg-slate-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md py-2 pl-10 pr-4 text-gray-800 dark:text-slate-300 placeholder-gray-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors duration-300", 'aria-label': t.searchPlaceholder })
+    ),
+    React.createElement('div', { className: "flex items-center gap-4" },
+      React.createElement('label', { htmlFor: "favorites-toggle", className: "flex items-center cursor-pointer select-none" },
+        React.createElement('div', { className: "relative" },
+          React.createElement('input', { type: "checkbox", id: "favorites-toggle", className: "sr-only", checked: showFavoritesOnly, onChange: onShowFavoritesChange }),
+          React.createElement('div', { className: "block bg-gray-300 dark:bg-slate-700 w-14 h-8 rounded-full transition-colors" }),
+          React.createElement('div', { className: `dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${showFavoritesOnly ? 'transform translate-x-full bg-sky-400' : ''}` })
+        ),
+        React.createElement('div', { className: "ml-3 text-gray-700 dark:text-slate-300 font-medium whitespace-nowrap" }, t.showFavoritesOnly)
+      )
+    ),
+    React.createElement('div', { className: "relative w-full sm:w-auto sm:min-w-[250px]" },
+      React.createElement('select', { value: sortValue, onChange: onSortChange, className: "w-full bg-slate-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md py-2 px-3 text-gray-800 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors duration-300 appearance-none", 'aria-label': t.sortLabel },
+        React.createElement('option', { value: "name_asc" }, t.sortNameAsc),
+        React.createElement('option', { value: "name_desc" }, t.sortNameDesc),
+        React.createElement('option', { value: "price_desc" }, t.sortPriceDesc),
+        React.createElement('option', { value: "price_asc" }, t.sortPriceAsc),
+        React.createElement('option', { value: "changePercent_desc" }, t.sortChangeDesc),
+        React.createElement('option', { value: "changePercent_asc" }, t.sortChangeAsc)
+      ),
+      React.createElement('div', { className: "absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none" }, React.createElement('svg', { className: "w-5 h-5 text-gray-400 dark:text-slate-400", viewBox: "0 0 20 20", fill: "currentColor" }, React.createElement('path', { fillRule: "evenodd", d: "M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z", clipRule: "evenodd" })))
+    )
+  );
+};
+
+const SettingsModal = ({ isOpen, onClose }) => {
+  const { lang, setLang, currency, setCurrency, theme, setTheme } = useSettings();
+  const t = translations[lang];
+  if (!isOpen) return null;
+  return React.createElement('div', { className: "fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4", onClick: onClose, 'aria-modal': "true", role: "dialog" },
+    React.createElement('div', { className: "bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl w-full max-w-md relative transform transition-all duration-300 ease-out animate-fade-in", onClick: (e) => e.stopPropagation() },
+      React.createElement('div', { className: "p-6 md:p-8" },
+        React.createElement('div', { className: "flex justify-between items-center mb-6" },
+          React.createElement('h2', { className: "text-2xl font-bold text-gray-900 dark:text-slate-100" }, t.settings),
+          React.createElement('button', { onClick: onClose, className: "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors", 'aria-label': t.close },
+            React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-6 w-6", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" }, React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" }))
+          )
+        ),
+        React.createElement('div', { className: "space-y-6" },
+          React.createElement('div', null,
+            React.createElement('label', { htmlFor: "language-select", className: "block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2" }, t.language),
+            React.createElement('select', { id: "language-select", value: lang, onChange: (e) => setLang(e.target.value), className: "w-full bg-slate-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md py-2 px-3 text-gray-800 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors duration-300" },
+              React.createElement('option', { value: "pt" }, '🇧🇷 Português'),
+              React.createElement('option', { value: "en" }, '🇺🇸 English')
+            )
+          ),
+          React.createElement('div', null,
+            React.createElement('label', { htmlFor: "currency-select", className: "block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2" }, t.currency),
+            React.createElement('select', { id: "currency-select", value: currency, onChange: (e) => setCurrency(e.target.value), className: "w-full bg-slate-100 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-md py-2 px-3 text-gray-800 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors duration-300" },
+              React.createElement('option', { value: "BRL" }, 'BRL (R$)'),
+              React.createElement('option', { value: "USD" }, 'USD ($)'),
+              React.createElement('option', { value: "EUR" }, 'EUR (€)'),
+              React.createElement('option', { value: "GBP" }, 'GBP (£)')
+            )
+          ),
+          React.createElement('div', null,
+            React.createElement('label', { className: "block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2" }, t.theme),
+            React.createElement('div', { className: "flex gap-2 rounded-md bg-slate-100 dark:bg-slate-800 p-1" },
+              React.createElement('button', { onClick: () => setTheme('light'), className: `w-full py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'light' ? 'bg-sky-500 text-white' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'}` }, t.lightTheme),
+              React.createElement('button', { onClick: () => setTheme('dark'), className: `w-full py-2 rounded-md text-sm font-semibold transition-colors ${theme === 'dark' ? 'bg-sky-500 text-white' : 'text-gray-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'}` }, t.darkTheme)
+            )
+          )
+        )
+      )
+    )
+  );
+};
+
+const Header = () => {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  return React.createElement(React.Fragment, null,
+    React.createElement('header', { className: "py-8 text-center relative" },
+      React.createElement('div', { className: "absolute top-4 right-0 md:right-4" },
+        React.createElement('button', { onClick: () => setIsSettingsOpen(true), className: "p-2 rounded-full text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors", 'aria-label': t.settings },
+          React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-6 w-6", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" },
+            React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.096 2.572-1.065z" }),
+            React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z" })
+          )
+        )
+      ),
+      React.createElement('h1', { className: "text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-emerald-500 mt-16 md:mt-0" }, t.headerTitle),
+      React.createElement('p', { className: "text-gray-500 dark:text-slate-400 mt-2 text-lg" }, t.headerSubtitle)
+    ),
+    React.createElement(SettingsModal, { isOpen: isSettingsOpen, onClose: () => setIsSettingsOpen(false) })
+  );
+};
+
+const RecommendationBadge = ({ recommendation }) => {
+    const { lang } = useLanguage(); const t = translations[lang];
+    const baseClasses = "px-4 py-1 text-sm font-bold rounded-full inline-block";
+    switch (recommendation) {
+        case 'COMPRE': return React.createElement('span', { className: `${baseClasses} bg-emerald-500/20 text-emerald-600 dark:text-emerald-400` }, t.COMPRE);
+        case 'VENDA': return React.createElement('span', { className: `${baseClasses} bg-red-500/20 text-red-600 dark:text-red-400` }, t.VENDA);
+        case 'MANTENHA': return React.createElement('span', { className: `${baseClasses} bg-yellow-500/20 text-yellow-600 dark:text-yellow-400` }, t.MANTENHA);
+        default: return null;
+    }
+}
+
+const RiskBadge = ({ risk }) => {
+    const { lang } = useLanguage(); const t = translations[lang];
+    const baseClasses = "px-3 py-1 text-xs font-semibold rounded-full inline-block";
+    switch (risk) {
+        case 'BAIXO': return React.createElement('span', { className: `${baseClasses} bg-green-500/20 text-green-600 dark:text-green-400` }, t.BAIXO);
+        case 'MÉDIO': return React.createElement('span', { className: `${baseClasses} bg-orange-500/20 text-orange-600 dark:text-orange-400` }, t.MÉDIO);
+        case 'ALTO': return React.createElement('span', { className: `${baseClasses} bg-red-500/20 text-red-600 dark:text-red-400` }, t.ALTO);
+        default: return null;
+    }
+}
+
+const AssetDetailView = ({ asset, isFavorite, onToggleFavorite }) => {
+    const { lang } = useLanguage(); const { currency, formatCurrency, convertCurrency } = useCurrency(); const t = translations[lang];
+    const [analysis, setAnalysis] = useState(null);
+    const [news, setNews] = useState([]);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isNewsLoading, setIsNewsLoading] = useState(true);
+    useEffect(() => {
+        const loadNews = async () => { setIsNewsLoading(true); const fetchedNews = await fetchNewsForAsset(asset.name); setNews(fetchedNews); setIsNewsLoading(false); };
+        loadNews();
+    }, [asset.name]);
+    const dynamicChartData = useMemo(() => {
+        const convertedPrice = convertCurrency(asset.price, asset.baseCurrency, currency);
+        const convertedData = asset.chartData.map(d => ({ ...d, price: convertCurrency(d.price, asset.baseCurrency, currency) }));
+        if (convertedData.length > 0) { convertedData[convertedData.length - 1].price = convertedPrice; }
+        return convertedData;
+    }, [asset.price, asset.baseCurrency, currency, convertCurrency, asset.chartData]);
+    const { rsi, smas, macd } = useMemo(() => {
+        const prices = asset.chartData.map(d => d.price);
+        if (prices.length < 26) return { rsi: null, smas: { short: null, long: null }, macd: null };
+        return { rsi: calculateRSI(prices, 14), smas: { short: calculateSMA(prices, 10), long: calculateSMA(prices, 20) }, macd: calculateMACD(prices, 12, 26, 9) };
+    }, [asset.chartData]);
+    const handleGenerateAnalysis = async () => { setIsAnalyzing(true); const newAnalysis = await generateAnalysis(asset, rsi, macd, smas); setAnalysis(newAnalysis); setIsAnalyzing(false); };
+    const handleFavoriteClick = (e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(asset.id); };
+    const isPositive = asset.changePercent >= 0;
+    const changeColor = isPositive ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
+    const changeSymbol = isPositive ? '▲' : '▼';
+    
+    const NewsSection = () => {
+        if (isNewsLoading) {
+            return React.createElement('div', { className: "flex justify-center items-center h-24" }, React.createElement(LoadingSpinner, null));
+        }
+        if (news.length > 0) {
+            return React.createElement('ul', { className: "space-y-4" },
+                news.map((item, index) => React.createElement('li', { key: index, className: "border-b border-gray-200 dark:border-slate-700 pb-4 last:border-b-0 last:pb-0" },
+                    React.createElement('a', { href: item.url, target: "_blank", rel: "noopener noreferrer", className: "block hover:bg-gray-100 dark:hover:bg-slate-800 p-2 rounded-md transition-colors" },
+                        React.createElement('p', { className: "font-semibold text-gray-800 dark:text-slate-100" }, item.title),
+                        React.createElement('div', { className: "flex justify-between items-center text-sm text-gray-500 dark:text-slate-400 mt-1" },
+                            React.createElement('span', { className: "font-medium" }, item.source),
+                            React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-4 w-4", fill: "none", viewBox: "0 0 24 24", stroke: "currentColor" },
+                                React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" })
+                            )
+                        )
+                    )
+                ))
+            );
+        }
+        return React.createElement('p', { className: "text-gray-500 dark:text-slate-400" }, t.noNews);
+    };
+
+    return React.createElement('div', { className: "animate-fade-in-up" },
+        React.createElement('button', { onClick: () => window.location.hash = '#', className: "inline-flex items-center gap-2 text-sky-500 hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300 transition-colors mb-6 focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-md" },
+            React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-5 w-5", viewBox: "0 0 20 20", fill: "currentColor" }, React.createElement('path', { fillRule: "evenodd", d: "M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z", clipRule: "evenodd" })),
+            t.backToList
+        ),
+        React.createElement('div', { className: "flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8" },
+            React.createElement('div', { className: "flex items-center gap-4" },
+                React.createElement('img', { src: asset.logo, alt: `${asset.name} logo`, className: "w-16 h-16", style: { filter: asset.symbol === 'AAPL' ? 'invert(1)' : 'none' } }),
+                React.createElement('div', null,
+                    React.createElement('h2', { className: "text-4xl font-bold text-gray-900 dark:text-slate-100" }, asset.name),
+                    React.createElement('p', { className: "text-xl text-gray-500 dark:text-slate-400" }, asset.symbol)
+                )
+            ),
+            React.createElement('div', { className: "flex items-center gap-4" },
+                React.createElement('button', { onClick: handleFavoriteClick, title: isFavorite ? t.removeFromFavorites : t.addToFavorites, className: "text-gray-400 dark:text-slate-400 hover:text-yellow-400 transition-colors p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400", 'aria-label': isFavorite ? t.removeFromFavorites : t.addToFavorites },
+                    React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-8 w-8", viewBox: "0 0 24 24", fill: isFavorite ? '#facc15' : 'none', stroke: isFavorite ? '#facc15' : 'currentColor', strokeWidth: "1.5" },
+                        React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", d: "M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118L2.05 10.1c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" })
+                    )
+                ),
+                React.createElement('div', { className: "text-right" },
+                    React.createElement('p', { className: "text-4xl font-semibold text-gray-900 dark:text-slate-50" }, formatCurrency(asset.price, asset.baseCurrency)),
+                    React.createElement('div', { className: `flex items-center justify-end gap-2 text-xl font-medium ${changeColor}` },
+                        React.createElement('span', null, `${changeSymbol} ${formatCurrency(asset.change, asset.baseCurrency)}`),
+                        React.createElement('span', null, `(${asset.changePercent.toFixed(2)}%)`)
+                    )
+                )
+            )
+        ),
+        React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-4 mb-8" },
+            React.createElement(Chart, { data: dynamicChartData, color: isPositive ? '#10b981' : '#ef4444' })
+        ),
+        React.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-3 gap-8" },
+            React.createElement('div', { className: "lg:col-span-2 space-y-8" },
+                React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-6" },
+                    React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, "Indicadores Técnicos"),
+                    React.createElement('div', { className: "grid grid-cols-2 md:grid-cols-3 gap-4 text-center" },
+                        React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg" },
+                            React.createElement('h4', { className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-1" }, "RSI (14)"),
+                            React.createElement('p', { className: "text-xl font-bold text-gray-800 dark:text-slate-200" }, rsi ? rsi.toFixed(2) : 'N/A')
+                        ),
+                        React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg" },
+                            React.createElement('h4', { className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-1" }, "MMS (10)"),
+                            React.createElement('p', { className: "text-xl font-bold text-gray-800 dark:text-slate-200" }, smas.short ? formatCurrency(smas.short, asset.baseCurrency) : 'N/A')
+                        ),
+                        React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg" },
+                            React.createElement('h4', { className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-1" }, "MMS (20)"),
+                            React.createElement('p', { className: "text-xl font-bold text-gray-800 dark:text-slate-200" }, smas.long ? formatCurrency(smas.long, asset.baseCurrency) : 'N/A')
+                        ),
+                        React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg col-span-2 md:col-span-3" },
+                            React.createElement('h4', { className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2" }, "MACD (12,26,9)"),
+                            React.createElement('div', { className: "flex justify-center items-center gap-4" },
+                                React.createElement('span', { className: "text-sm" }, React.createElement('b', { className: "text-blue-500" }, "MACD:"), ` ${macd ? macd.MACD.toFixed(2) : 'N/A'}`),
+                                React.createElement('span', { className: "text-sm" }, React.createElement('b', { className: "text-orange-500" }, "Sinal:"), ` ${macd ? macd.signal.toFixed(2) : 'N/A'}`),
+                                React.createElement('span', { className: "text-sm" }, React.createElement('b', null, "Hist:"), ` ${macd ? macd.histogram.toFixed(2) : 'N/A'}`)
+                            )
+                        )
+                    )
+                ),
+                React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-6" },
+                    React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, t.profile),
+                    React.createElement('p', { className: "text-gray-600 dark:text-slate-300 leading-relaxed" }, asset.profile)
+                ),
+                React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-6" },
+                    React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, t.news),
+                    React.createElement(NewsSection, null)
+                )
+            ),
+            React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-6 h-fit sticky top-8" },
+                !analysis ? React.createElement(React.Fragment, null, 
+                  React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, t.aiAnalysis),
+                  React.createElement('p', { className: "text-gray-500 dark:text-slate-400 mb-6" }, t.aiAnalysisSubtitle),
+                  React.createElement('button', { onClick: handleGenerateAnalysis, disabled: isAnalyzing, className: "w-full flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-600 disabled:bg-sky-500/50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300" }, isAnalyzing && React.createElement(LoadingSpinner, {size: "h-5 w-5"}), isAnalyzing ? t.generatingAnalysis : t.generateAnalysis)
+                ) : React.createElement('div', { className: "space-y-4 animate-fade-in-up" },
+                  React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, t.aiAnalysis),
+                  React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700"}, React.createElement('h3', {className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2"}, t.modalRecommendation), React.createElement(RecommendationBadge, {recommendation: analysis.recommendation})),
+                  React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700"}, React.createElement('h3', {className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2"}, t.modalReasoning), React.createElement('p', {className: "text-gray-700 dark:text-slate-300 text-sm leading-relaxed"}, analysis.reasoning)),
+                  React.createElement('div', { className: "grid grid-cols-2 gap-3 text-center" },
+                    React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700" },
+                      React.createElement('h4', { className: "text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1" }, t.modalRisk),
+                      React.createElement(RiskBadge, { risk: analysis.risk })
+                    ),
+                    React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700" },
+                      React.createElement('h4', { className: "text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1" }, t.modalReturn),
+                      React.createElement('p', { className: "text-md font-bold text-sky-500 dark:text-sky-400" }, analysis.potentialReturn)
+                    )
+                  ),
+                  React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700 text-center" },
+                    React.createElement('h4', { className: "text-xs font-semibold text-gray-600 dark:text-slate-400 mb-2" }, t.modalProbabilities),
+                    React.createElement('div', { className: "flex justify-center items-center gap-4" },
+                      React.createElement('span', { className: "text-emerald-500 dark:text-emerald-400 font-bold text-sm" }, `▲ ${analysis.probabilities.up}%`),
+                      React.createElement('span', { className: "text-red-500 dark:text-red-400 font-bold text-sm" }, `▼ ${analysis.probabilities.down}%`)
+                    )
+                  ),
+                  React.createElement('div', { className: "pt-2" }, React.createElement('button', { onClick: handleGenerateAnalysis, disabled: isAnalyzing, className: "w-full flex items-center justify-center gap-2 bg-slate-600 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 disabled:bg-slate-600/50 dark:disabled:bg-slate-700/50 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 text-sm" }, isAnalyzing && React.createElement(LoadingSpinner, {size: "h-4 w-4"}), isAnalyzing ? t.refreshingAnalysis : t.refreshAnalysis))
+                )
+            )
+        )
+    );
+};
+
+// --- App.tsx (Main Component) ---
+const MARKET_OVERVIEW_SYMBOLS = ['IBOV', 'SPX', 'DJI', 'IXIC', 'USD/BRL', 'EUR/BRL'];
+function App() {
+  const [assets, setAssets] = useState([]);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortValue, setSortValue] = useState('name_asc');
+  const [favorites, setFavorites] = useState(new Set());
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [route, setRoute] = useState(window.location.hash);
+  const [insights, setInsights] = useState(null);
+  const [isInsightsLoading, setIsInsightsLoading] = useState(false);
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  useEffect(() => {
+    const handleHashChange = () => setRoute(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange, false);
+    return () => window.removeEventListener('hashchange', handleHashChange, false);
+  }, []);
+  useEffect(() => {
+    setFavorites(loadFavorites());
+    setIsInitialLoading(true);
+    let hasLoaded = false;
+    const unsubscribe = subscribeToMarketData((updatedAssets) => {
+      setAssets(updatedAssets);
+      if (!hasLoaded) { setIsInitialLoading(false); hasLoaded = true; }
+    });
+    return () => unsubscribe();
+  }, []);
+  useEffect(() => { saveFavorites(favorites); }, [favorites]);
+  const handleToggleFavorite = (assetId) => {
+    setFavorites(prevFavorites => {
+      const newFavorites = new Set(prevFavorites);
+      if (newFavorites.has(assetId)) newFavorites.delete(assetId);
+      else newFavorites.add(assetId);
+      return newFavorites;
+    });
+  };
+  const { marketOverviewAssets, gridAssets } = useMemo(() => {
+    const overview = assets.filter(a => MARKET_OVERVIEW_SYMBOLS.includes(a.symbol));
+    const grid = assets.filter(a => !MARKET_OVERVIEW_SYMBOLS.includes(a.symbol));
+    return { marketOverviewAssets: overview, gridAssets: grid };
+  }, [assets]);
+  const filteredAndSortedAssets = useMemo(() => {
+    const [key, order] = sortValue.split('_');
+    return gridAssets
+      .filter(asset => (asset.name.toLowerCase().includes(searchTerm.toLowerCase()) || asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())) && (!showFavoritesOnly || favorites.has(asset.id)))
+      .sort((a, b) => {
+        if (!showFavoritesOnly) {
+          if (favorites.has(a.id) && !favorites.has(b.id)) return -1;
+          if (!favorites.has(a.id) && favorites.has(b.id)) return 1;
+        }
+        let comparison = 0;
+        if (key === 'name') comparison = a.name.localeCompare(b.name);
+        else if (key === 'price') comparison = b.price - a.price;
+        else if (key === 'changePercent') comparison = b.changePercent - a.changePercent;
+        if (order === 'asc') { if (key === 'price' || key === 'changePercent') return -comparison; return comparison; }
+        if (order === 'desc' && key === 'name') return -comparison;
+        return comparison;
+      });
+  }, [gridAssets, searchTerm, sortValue, favorites, showFavoritesOnly]);
+  const handleGenerateInsights = useCallback(async () => {
+    if (isInsightsLoading) return;
+    setIsInsightsLoading(true);
+    const topMovers = [...gridAssets].sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent));
+    const contextAssets = [...marketOverviewAssets, ...topMovers.slice(0, 4)];
+    const result = await generateMarketInsights(contextAssets);
+    setInsights(result);
+    setIsInsightsLoading(false);
+  }, [isInsightsLoading, gridAssets, marketOverviewAssets]);
+  const assetLogoMap = useMemo(() => { const map = new Map(); assets.forEach(asset => map.set(asset.symbol, asset.logo)); return map; }, [assets]);
+  const findAssetLogo = useCallback((symbol) => assetLogoMap.get(symbol), [assetLogoMap]);
+  const assetIdFromRoute = useMemo(() => { if (route.startsWith('#/asset/')) return route.split('/')[2]; return null; }, [route]);
+  const assetForDetailView = useMemo(() => { if (!assetIdFromRoute || assets.length === 0) return null; return assets.find(a => a.id === assetIdFromRoute) || null; }, [assetIdFromRoute, assets]);
+  const renderContent = () => {
+    if (isInitialLoading) return React.createElement('div', { className: "flex flex-col items-center justify-center h-64" }, React.createElement(LoadingSpinner, { size: "h-16 w-16" }), React.createElement('p', { className: "mt-4 text-xl text-gray-500 dark:text-slate-400" }, t.loadingMarket));
+    if (assetForDetailView) return React.createElement(AssetDetailView, { key: assetForDetailView.id, asset: assetForDetailView, isFavorite: favorites.has(assetForDetailView.id), onToggleFavorite: handleToggleFavorite });
+    if (assetIdFromRoute && !assetForDetailView) return React.createElement('div', { className: "flex flex-col items-center justify-center h-64" }, React.createElement(LoadingSpinner, { size: "h-16 w-16" }), React.createElement('p', { className: "mt-4 text-xl text-gray-500 dark:text-slate-400" }, t.loadingAsset));
+    return React.createElement(React.Fragment, null,
+      React.createElement(MarketOverview, { assets: marketOverviewAssets }),
+      React.createElement(AIInsights, { insights: insights, isLoading: isInsightsLoading, onGenerate: handleGenerateInsights, findAssetLogo: findAssetLogo }),
+      React.createElement(Controls, { searchTerm: searchTerm, onSearchChange: (e) => setSearchTerm(e.target.value), sortValue: sortValue, onSortChange: (e) => setSortValue(e.target.value), showFavoritesOnly: showFavoritesOnly, onShowFavoritesChange: (e) => setShowFavoritesOnly(e.target.checked) }),
+      React.createElement(AssetGrid, { assets: filteredAndSortedAssets, favorites: favorites, onToggleFavorite: handleToggleFavorite })
+    );
+  };
+  return React.createElement('div', { className: "bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-sans min-h-screen transition-colors duration-300" },
+    React.createElement('div', { className: "container mx-auto px-4 py-8" },
+      React.createElement(Header, null),
+      React.createElement('main', null, renderContent())
+    )
+  );
+}
+
+// --- index.tsx (Entry Point) ---
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("Could not find root element to mount to");
+}
+const root = ReactDOM.createRoot(rootElement);
+root.render(
+  React.createElement(StrictMode, null, 
+    React.createElement(SettingsProvider, null,
+      React.createElement(App, null)
+    )
+  )
+);
+
+    </script>
   </body>
 </html>

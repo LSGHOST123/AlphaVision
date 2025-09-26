@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Asset, AIAnalysis, NewsItem } from '../types';
 import { useCurrency, useLanguage } from '../contexts';
@@ -282,16 +283,6 @@ const AssetDetailView: React.FC<AssetDetailViewProps> = ({ asset, isFavorite, on
             )}
         </div>
       </div>
-      
-      <style>{`
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.5s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

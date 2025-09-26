@@ -1,3 +1,4 @@
+
 // Fix: Provide actual translations for the application.
 export const translations = {
   pt: {
@@ -51,6 +52,13 @@ export const translations = {
     analysisTimestamp: "Análise gerada em:",
     noNews: 'Nenhuma notícia recente disponível.',
     loadingNews: 'Buscando notícias...',
+    // AI Insights
+    aiInsightsTitle: 'AlphaVision AI Insights',
+    aiInsightsDescription: 'Receba um resumo do mercado e destaques gerados por IA.',
+    generateInsights: 'Gerar Resumo do Mercado',
+    generatingInsights: 'Analisando Mercado...',
+    opportunityHighlight: 'Oportunidade em Destaque',
+    attentionPoint: 'Ponto de Atenção',
     // Settings
     settings: 'Configurações',
     theme: 'Tema',
@@ -109,6 +117,13 @@ export const translations = {
     analysisTimestamp: "Analysis generated at:",
     noNews: 'No recent news available.',
     loadingNews: 'Fetching news...',
+    // AI Insights
+    aiInsightsTitle: 'AlphaVision AI Insights',
+    aiInsightsDescription: 'Get an AI-generated market summary and highlights.',
+    generateInsights: 'Generate Market Summary',
+    generatingInsights: 'Analyzing Market...',
+    opportunityHighlight: 'Opportunity Highlight',
+    attentionPoint: 'Point of Attention',
     // Settings
     settings: 'Settings',
     theme: 'Theme',

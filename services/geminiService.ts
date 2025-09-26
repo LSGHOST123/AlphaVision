@@ -1,4 +1,5 @@
-import { AIAnalysis, Asset, NewsItem } from "../types";
+
+import { AIAnalysis, Asset, NewsItem, AIInsight } from "../types";
 import { GoogleGenAI, Type } from "@google/genai";
 import { MacdResult } from "../utils/technicalAnalysis";
 
@@ -124,4 +125,76 @@ export const generateAnalysis = async (
         probabilities: { up: 50, down: 50 },
       };
     }
+};
+
+/**
+ * Generates high-level market insights using the Gemini API.
+ * @param assets A sample of assets to analyze for trends.
+ * @returns An AIInsight object.
+ */
+export const generateMarketInsights = async (assets: Asset[]): Promise<AIInsight> => {
+  const assetSummaries = assets.slice(0, 8).map(a => 
+    `${a.name} (${a.symbol}): Preço ${a.price.toFixed(2)}, Variação ${a.changePercent.toFixed(2)}%`
+  ).join('; ');
+
+  const prompt = `
+    Você é um analista de mercado de IA da AlphaVision. Com base nos seguintes dados de ativos, forneça um resumo conciso do mercado.
+    
+    Dados de Amostra: ${assetSummaries}
+
+    Sua tarefa é identificar:
+    1. Uma tendência geral do mercado (otimista, pessimista, neutro, volátil, etc.).
+    2. Um ativo que se destaca como uma "Oportunidade em Destaque" com base nos dados. Forneça o símbolo e uma justificativa muito curta (1 frase).
+    3. Um ativo que merece um "Ponto de Atenção" (seja por risco, queda acentuada, etc.). Forneça o símbolo e uma justificativa muito curta (1 frase).
+
+    Responda em JSON com a estrutura exata:
+    - marketTrend: string (1 frase sobre a tendência do mercado)
+    - opportunity: { symbol: string, reasoning: string }
+    - attentionPoint: { symbol: string, reasoning: string }
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            marketTrend: { type: Type.STRING },
+            opportunity: {
+              type: Type.OBJECT,
+              properties: {
+                symbol: { type: Type.STRING },
+                reasoning: { type: Type.STRING },
+              },
+              required: ['symbol', 'reasoning'],
+            },
+            attentionPoint: {
+              type: Type.OBJECT,
+              properties: {
+                symbol: { type: Type.STRING },
+                reasoning: { type: Type.STRING },
+              },
+              required: ['symbol', 'reasoning'],
+            },
+          },
+          required: ['marketTrend', 'opportunity', 'attentionPoint'],
+        },
+      },
+    });
+
+    const insights = JSON.parse(response.text.trim());
+    return insights as AIInsight;
+
+  } catch (error) {
+    console.error("Error generating market insights with Gemini:", error);
+    // Fallback to a user-friendly error message
+    return {
+      marketTrend: 'A análise de mercado da IA não está disponível no momento. Tente novamente.',
+      opportunity: { symbol: 'N/A', reasoning: '' },
+      attentionPoint: { symbol: 'N/A', reasoning: '' },
+    };
+  }
 };

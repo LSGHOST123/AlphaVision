@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Asset } from '../types';
 import { useCurrency } from '../contexts';
@@ -33,24 +34,12 @@ const MarketOverview: React.FC<MarketOverviewProps> = ({ assets }) => {
 
   return (
     <div className="mb-8 relative overflow-hidden group bg-gray-50 dark:bg-slate-800/50 border-y border-gray-200 dark:border-slate-700 py-3">
-        <div className="flex animate-marquee group-hover:pause">
+        <div className="flex animate-marquee">
             {duplicatedAssets.map((asset, index) => (
                 <MarketOverviewItem key={`${asset.id}-${index}`} asset={asset} />
             ))}
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-white dark:from-slate-900 via-transparent to-white dark:to-slate-900 pointer-events-none"></div>
-        <style>{`
-            @keyframes marquee {
-                from { transform: translateX(0); }
-                to { transform: translateX(-50%); }
-            }
-            .animate-marquee {
-                animation: marquee 40s linear infinite;
-            }
-            .group-hover\\:pause:hover {
-                animation-play-state: paused;
-            }
-        `}</style>
     </div>
   );
 };
