@@ -1,1 +1,0 @@
-// O conteúdo deste arquivo foi movido para index.html para criar um aplicativo de arquivo único.
