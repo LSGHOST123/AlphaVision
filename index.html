@@ -126,16 +126,16 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 //
 // Exemplo: const GOOGLE_API_KEY = "SuaChaveSuperSecretaAqui";
 //
-const GOOGLE_API_KEY = "AIzaSyB92dC29f6xysHuFq7_RP_ook6P9UWLVMo"; // <<< COLE SUA CHAVE DE API DO GOOGLE AQUI
+const GOOGLE_API_KEY = ""; // <<< COLE SUA CHAVE DE API DO GOOGLE AQUI
 
 
 // --- translations.ts ---
 const translations = {
   pt: {
-    language: 'Idioma', currency: 'Moeda', headerTitle: 'AlphaVision', headerSubtitle: 'Sua visão de mercado ampliada pela IA.', chartDate: 'Data', chartPrice: 'Preço', addToFavorites: 'Adicionar aos Favoritos', removeFromFavorites: 'Remover dos Favoritos', searchPlaceholder: 'Buscar por nome ou símbolo...', showFavoritesOnly: 'Apenas Favoritos', sortLabel: 'Ordenar por', sortNameAsc: 'Nome (A-Z)', sortNameDesc: 'Nome (Z-A)', sortPriceDesc: 'Preço (Maior)', sortPriceAsc: 'Preço (Menor)', sortChangeDesc: 'Variação % (Maior)', sortChangeAsc: 'Variação % (Menor)', loadingMarket: 'Carregando dados do mercado...', loadingAsset: 'Carregando dados do ativo...', COMPRE: 'COMPRE', VENDA: 'VENDA', MANTENHA: 'MANTENHA', BAIXO: 'BAIXO', MÉDIO: 'MÉDIO', ALTO: 'ALTO', modalAIGenerated: 'Análise gerada por IA', modalRecommendation: 'Recomendação', modalReasoning: 'Justificativa', modalRisk: 'Risco', modalReturn: 'Retorno Potencial', modalProbabilities: 'Probabilidades', backToList: 'Voltar para a Lista', profile: 'Perfil da Empresa', news: 'Notícias Recentes', aiAnalysis: 'Análise com IA', aiAnalysisSubtitle: "Clique abaixo para obter uma análise técnica detalhada do ativo.", generateAnalysis: 'Gerar Análise', generatingAnalysis: 'Gerando Análise...', refreshAnalysis: "Atualizar Análise", refreshingAnalysis: "Aprimorando...", analysisTimestamp: "Análise gerada em:", noNews: 'Nenhuma notícia recente disponível.', loadingNews: 'Buscando notícias...', noProfile: 'Perfil da empresa não disponível.', aiInsightsTitle: 'AlphaVision AI Insights', aiInsightsDescription: 'Receba um resumo do mercado e destaques gerados por IA.', generateInsights: 'Gerar Resumo do Mercado', generatingInsights: 'Analisando Mercado...', opportunityHighlight: 'Oportunidade em Destaque', attentionPoint: 'Ponto de Atenção', settings: 'Configurações', theme: 'Tema', lightTheme: 'Claro', darkTheme: 'Escuro', close: 'Fechar', loading: 'Carregando...', loadingChart: 'Carregando dados do gráfico...', compare: 'Comparar', compareAssets: 'Comparar Ativos', clearSelection: 'Limpar', comparisonChart: 'Gráfico de Comparação', performanceComparison: 'Comparação de Desempenho (Últimos 30 dias)', selectToCompare: 'Selecione até 5 ativos para comparar.', maxAssetsReached: 'Limite de 5 ativos para comparação atingido.', addToCompare: 'Adicionar à Comparação', removeFromCompare: 'Remover da Comparação', noDataForComparison: 'Não foi possível carregar dados para os ativos selecionados.',
+    language: 'Idioma', currency: 'Moeda', headerTitle: 'AlphaVision', headerSubtitle: 'Sua visão de mercado ampliada pela IA.', chartDate: 'Data', chartPrice: 'Preço', addToFavorites: 'Adicionar aos Favoritos', removeFromFavorites: 'Remover dos Favoritos', searchPlaceholder: 'Buscar por nome ou símbolo...', showFavoritesOnly: 'Apenas Favoritos', sortLabel: 'Ordenar por', sortNameAsc: 'Nome (A-Z)', sortNameDesc: 'Nome (Z-A)', sortPriceDesc: 'Preço (Maior)', sortPriceAsc: 'Preço (Menor)', sortChangeDesc: 'Variação % (Maior)', sortChangeAsc: 'Variação % (Menor)', loadingMarket: 'Carregando dados do mercado...', loadingAsset: 'Carregando dados do ativo...', COMPRE: 'COMPRE', VENDA: 'VENDA', MANTENHA: 'MANTENHA', BAIXO: 'BAIXO', MÉDIO: 'MÉDIO', ALTO: 'ALTO', modalAIGenerated: 'Análise gerada por IA', modalRecommendation: 'Recomendação', modalReasoning: 'Justificativa', modalRisk: 'Risco', modalReturn: 'Retorno Potencial', modalProbabilities: 'Probabilidades', backToList: 'Voltar para a Lista', profile: 'Perfil da Empresa', news: 'Notícias Recentes', aiAnalysis: 'Análise com IA', aiAnalysisSubtitle: "Clique abaixo para obter uma análise técnica detalhada do ativo.", generateAnalysis: 'Gerar Análise', generatingAnalysis: 'Gerando Análise...', refreshAnalysis: "Atualizar Análise", refreshingAnalysis: "Aprimorando...", analysisTimestamp: "Análise gerada em:", noNews: 'Nenhuma notícia recente disponível.', loadingNews: 'Buscando notícias...', noProfile: 'Perfil da empresa não disponível.', aiInsightsTitle: 'AlphaVision AI Insights', aiInsightsDescription: 'Receba um resumo do mercado e destaques gerados por IA.', generateInsights: 'Gerar Resumo do Mercado', generatingInsights: 'Analisando Mercado...', opportunityHighlight: 'Oportunidade em Destaque', attentionPoint: 'Ponto de Atenção', settings: 'Configurações', theme: 'Tema', lightTheme: 'Claro', darkTheme: 'Escuro', close: 'Fechar', loading: 'Carregando...', loadingChart: 'Carregando dados do gráfico...', compare: 'Comparar', compareAssets: 'Comparar Ativos', clearSelection: 'Limpar', comparisonChart: 'Gráfico de Comparação', performanceComparison: 'Comparação de Desempenho (Últimos 3 meses)', selectToCompare: 'Selecione até 5 ativos para comparar.', maxAssetsReached: 'Limite de 5 ativos para comparação atingido.', addToCompare: 'Adicionar à Comparação', removeFromCompare: 'Remover da Comparação', noDataForComparison: 'Não foi possível carregar dados para os ativos selecionados.', exportCSV: 'Exportar CSV'
   },
   en: {
-    language: 'Language', currency: 'Currency', headerTitle: 'AlphaVision', headerSubtitle: 'Your market vision amplified by AI.', chartDate: 'Date', chartPrice: 'Price', addToFavorites: 'Add to Favorites', removeFromFavorites: 'Remove from Favorites', searchPlaceholder: 'Search by name or symbol...', showFavoritesOnly: 'Favorites Only', sortLabel: 'Sort by', sortNameAsc: 'Name (A-Z)', sortNameDesc: 'Name (Z-A)', sortPriceDesc: 'Price (High)', sortPriceAsc: 'Price (Low)', sortChangeDesc: 'Change % (High)', sortChangeAsc: 'Change % (Low)', loadingMarket: 'Loading market data...', loadingAsset: 'Loading asset data...', COMPRE: 'BUY', VENDA: 'SELL', MANTENHA: 'HOLD', BAIXO: 'LOW', MÉDIO: 'MEDIUM', ALTO: 'HIGH', modalAIGenerated: 'AI-Generated Analysis', modalRecommendation: 'Recommendation', modalReasoning: 'Reasoning', modalRisk: 'Risk', modalReturn: 'Potential Return', modalProbabilities: 'Probabilities', backToList: 'Back to List', profile: 'Company Profile', news: 'Recent News', aiAnalysis: 'AI Analysis', aiAnalysisSubtitle: "Click below to get a detailed technical analysis of the asset.", generateAnalysis: 'Generate Analysis', generatingAnalysis: 'Generating Analysis...', refreshAnalysis: "Refresh Analysis", refreshingAnalysis: "Enhancing...", analysisTimestamp: "Analysis generated at:", noNews: 'No recent news available.', loadingNews: 'Fetching news...', noProfile: 'Company profile not available.', aiInsightsTitle: 'AlphaVision AI Insights', aiInsightsDescription: 'Get an AI-generated market summary and highlights.', generateInsights: 'Generate Market Summary', generatingInsights: 'Analyzing Market...', opportunityHighlight: 'Opportunity Highlight', attentionPoint: 'Point of Attention', settings: 'Settings', theme: 'Theme', lightTheme: 'Light', darkTheme: 'Dark', close: 'Close', loading: 'Loading...', loadingChart: 'Loading chart data...', compare: 'Compare', compareAssets: 'Compare Assets', clearSelection: 'Clear', comparisonChart: 'Comparison Chart', performanceComparison: 'Performance Comparison (Last 30 days)', selectToCompare: 'Select up to 5 assets to compare.', maxAssetsReached: 'Maximum of 5 assets for comparison reached.', addToCompare: 'Add to Comparison', removeFromCompare: 'Remove from Comparison', noDataForComparison: 'Could not load data for the selected assets.',
+    language: 'Language', currency: 'Currency', headerTitle: 'AlphaVision', headerSubtitle: 'Your market vision amplified by AI.', chartDate: 'Date', chartPrice: 'Price', addToFavorites: 'Add to Favorites', removeFromFavorites: 'Remove from Favorites', searchPlaceholder: 'Search by name or symbol...', showFavoritesOnly: 'Favorites Only', sortLabel: 'Sort by', sortNameAsc: 'Name (A-Z)', sortNameDesc: 'Name (Z-A)', sortPriceDesc: 'Price (High)', sortPriceAsc: 'Price (Low)', sortChangeDesc: 'Change % (High)', sortChangeAsc: 'Change % (Low)', loadingMarket: 'Loading market data...', loadingAsset: 'Loading asset data...', COMPRE: 'BUY', VENDA: 'SELL', MANTENHA: 'HOLD', BAIXO: 'LOW', MÉDIO: 'MEDIUM', ALTO: 'HIGH', modalAIGenerated: 'AI-Generated Analysis', modalRecommendation: 'Recommendation', modalReasoning: 'Reasoning', modalRisk: 'Risk', modalReturn: 'Potential Return', modalProbabilities: 'Probabilities', backToList: 'Back to List', profile: 'Company Profile', news: 'Recent News', aiAnalysis: 'AI Analysis', aiAnalysisSubtitle: "Click below to get a detailed technical analysis of the asset.", generateAnalysis: 'Generate Analysis', generatingAnalysis: 'Generating Analysis...', refreshAnalysis: "Refresh Analysis", refreshingAnalysis: "Enhancing...", analysisTimestamp: "Analysis generated at:", noNews: 'No recent news available.', loadingNews: 'Fetching news...', noProfile: 'Company profile not available.', aiInsightsTitle: 'AlphaVision AI Insights', aiInsightsDescription: 'Get an AI-generated market summary and highlights.', generateInsights: 'Generate Market Summary', generatingInsights: 'Analyzing Market...', opportunityHighlight: 'Opportunity Highlight', attentionPoint: 'Point of Attention', settings: 'Settings', theme: 'Theme', lightTheme: 'Light', darkTheme: 'Dark', close: 'Close', loading: 'Loading...', loadingChart: 'Loading chart data...', compare: 'Compare', compareAssets: 'Compare Assets', clearSelection: 'Clear', comparisonChart: 'Comparison Chart', performanceComparison: 'Performance Comparison (Last 3 months)', selectToCompare: 'Select up to 5 assets to compare.', maxAssetsReached: 'Maximum of 5 assets for comparison reached.', addToCompare: 'Add to Comparison', removeFromCompare: 'Remove from Comparison', noDataForComparison: 'Could not load data for the selected assets.', exportCSV: 'Export CSV'
   },
 };
 
@@ -297,9 +297,11 @@ const createApiKeyError = (reasoningText) => ({
   potentialReturn: 'Indeterminado',
   probabilities: { up: 50, down: 50 },
 });
-const generateAnalysis = async (asset, rsi, macd, smas) => {
+const generateAnalysis = async (asset, chartData, rsi, macd, smas) => {
   if (!ai) return createApiKeyError('Chave de API do Google não configurada. Adicione sua chave no topo do arquivo index.html para habilitar a análise de IA.');
-  const prices = asset.chartData.map(d => d.price);
+  const prices = (chartData || []).map(d => d.price);
+  if (prices.length < 10) return createApiKeyError('Não há dados históricos suficientes para uma análise aprofundada. Tente novamente mais tarde.');
+
   const recentPrices = prices.slice(-10).map(p => p.toFixed(2)).join(', ');
   const prompt = `Você é um analista financeiro de IA. Analise o seguinte ativo financeiro e forneça uma recomendação de investimento. Ativo: ${asset.name} (${asset.symbol}), Preço Atual: ${asset.price.toFixed(2)} ${asset.baseCurrency}, Dados de Preços Recentes (últimos 10 dias): ${recentPrices}. Indicadores Técnicos Atuais: RSI (14 dias): ${rsi ? rsi.toFixed(2) : 'N/A'}, Médias Móveis Simples (MMS): Curta (10 dias) = ${smas.short ? smas.short.toFixed(2) : 'N/A'}, Longa (20 dias) = ${smas.long ? smas.long.toFixed(2) : 'N/A'}, MACD (12,26,9): Linha MACD = ${macd ? macd.MACD.toFixed(2) : 'N/A'}, Linha de Sinal = ${macd ? macd.signal.toFixed(2) : 'N/A'}. Com base nesses dados e indicadores, forneça uma análise técnica concisa. Justifique sua recomendação. Responda em JSON com a estrutura: { recommendation: 'COMPRE'|'VENDA'|'MANTENHA', reasoning: string, risk: 'BAIXO'|'MÉDIO'|'ALTO', potentialReturn: string, probabilities: { up: number, down: number } }`;
   try {
@@ -548,6 +550,8 @@ const SettingsProvider = ({ children }) => {
         }
     };
     fetchRates();
+    const interval = setInterval(fetchRates, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const setLang = (lang) => setSettings(s => ({ ...s, lang }));
@@ -556,19 +560,22 @@ const SettingsProvider = ({ children }) => {
 
   const convertCurrency = (value, from, to) => {
     if (from === to || !value) return value;
-    // Rates are how many of that currency per 1 USD (e.g., BRL: 5.4, EUR: 0.93)
     const rateFrom = conversionRates[from] || 1;
     const rateTo = conversionRates[to] || 1;
     const valueInUSD = value / (from === 'USD' ? 1 : rateFrom);
     return valueInUSD * (to === 'USD' ? 1 : rateTo);
   };
+  
+  const formatConvertedCurrency = (value) => {
+     return new Intl.NumberFormat(settings.lang === 'pt' ? 'pt-BR' : 'en-US', { style: 'currency', currency: settings.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+  }
 
   const formatCurrency = (value, baseCurrency) => {
     const convertedValue = convertCurrency(value, baseCurrency, settings.currency);
-    return new Intl.NumberFormat(settings.lang === 'pt' ? 'pt-BR' : 'en-US', { style: 'currency', currency: settings.currency, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(convertedValue);
+    return formatConvertedCurrency(convertedValue);
   };
 
-  const value = useMemo(() => ({ ...settings, setLang, setCurrency, setTheme, formatCurrency, convertCurrency }), [settings, conversionRates]);
+  const value = useMemo(() => ({ ...settings, setLang, setCurrency, setTheme, formatCurrency, formatConvertedCurrency, convertCurrency }), [settings, conversionRates]);
   return React.createElement(SettingsContext.Provider, { value: value }, children);
 };
 const useSettings = () => {
@@ -581,8 +588,8 @@ const useLanguage = () => {
   return { lang, setLang };
 };
 const useCurrency = () => {
-  const { currency, setCurrency, formatCurrency, convertCurrency } = useSettings();
-  return { currency, setCurrency, formatCurrency, convertCurrency };
+  const { currency, setCurrency, formatCurrency, formatConvertedCurrency, convertCurrency } = useSettings();
+  return { currency, setCurrency, formatCurrency, formatConvertedCurrency, convertCurrency };
 };
 
 // --- components ---
@@ -590,7 +597,7 @@ const LoadingSpinner = ({ size = 'h-8 w-8' }) => React.createElement('div', { cl
 
 const CustomTooltip = ({ active, payload, label, isComparison = false }) => {
   const { lang } = useLanguage();
-  const { currency, formatCurrency } = useCurrency();
+  const { formatConvertedCurrency } = useCurrency();
   const t = translations[lang];
 
   if (active && payload && payload.length) {
@@ -598,12 +605,11 @@ const CustomTooltip = ({ active, payload, label, isComparison = false }) => {
       return React.createElement('div', { className: "bg-white dark:bg-slate-800 p-2 border border-gray-200 dark:border-slate-700 rounded-md shadow-lg" },
         React.createElement('p', { className: "label text-gray-600 dark:text-slate-300 mb-2" }, `${t.chartDate}: ${label}`),
         payload.map(p => (
-          React.createElement('p', { key: p.dataKey, style: { color: p.color } }, `${p.dataKey}: ${p.value.toFixed(2)}%`)
+          React.createElement('p', { key: p.dataKey, style: { color: p.color } }, `${p.name}: ${p.value.toFixed(2)}%`)
         ))
       );
     }
-    const asset = payload[0].payload.asset;
-    const formattedPrice = formatCurrency(payload[0].value, asset?.baseCurrency || currency);
+    const formattedPrice = formatConvertedCurrency(payload[0].value);
     return React.createElement('div', { className: "bg-white dark:bg-slate-800 p-2 border border-gray-200 dark:border-slate-700 rounded-md shadow-lg" },
       React.createElement('p', { className: "label text-gray-600 dark:text-slate-300" }, `${t.chartDate}: ${label}`),
       React.createElement('p', { className: "intro text-sky-500 dark:text-sky-400 font-bold" }, `${t.chartPrice}: ${formattedPrice}`)
@@ -612,7 +618,7 @@ const CustomTooltip = ({ active, payload, label, isComparison = false }) => {
   return null;
 };
 
-const Chart = ({ data, color, asset }) => {
+const Chart = ({ data, color }) => {
   const { lang } = useLanguage();
   const { currency } = useCurrency();
   const { theme } = useSettings();
@@ -621,10 +627,8 @@ const Chart = ({ data, color, asset }) => {
   const gridColor = theme === 'dark' ? '#334155' : '#e5e7eb';
   const yAxisTickFormatter = (tick) => new Intl.NumberFormat(lang === 'pt' ? 'pt-BR' : 'en-US', { style: 'currency', currency: currency, notation: 'compact', compactDisplay: 'short' }).format(tick);
 
-  const chartDataWithAsset = useMemo(() => data.map(d => ({ ...d, asset })), [data, asset]);
-
   return React.createElement(ResponsiveContainer, { width: "100%", height: 200 },
-    React.createElement(LineChart, { data: chartDataWithAsset, margin: { top: 5, right: 20, left: -10, bottom: 5 } },
+    React.createElement(LineChart, { data: data, margin: { top: 5, right: 20, left: -10, bottom: 5 } },
       React.createElement(CartesianGrid, { strokeDasharray: "3 3", stroke: gridColor }),
       React.createElement(XAxis, { dataKey: "date", tick: { fill: tickColor }, fontSize: 12, axisLine: { stroke: axisColor }, tickLine: { stroke: axisColor } }),
       React.createElement(YAxis, { tick: { fill: tickColor }, fontSize: 12, axisLine: { stroke: axisColor }, tickLine: { stroke: axisColor }, domain: ['dataMin - dataMin * 0.05', 'dataMax + dataMax * 0.05'], tickFormatter: yAxisTickFormatter }),
@@ -690,7 +694,7 @@ const AssetCard = ({ asset, isFavorite, onToggleFavorite, isCompared, onToggleCo
               React.createElement('p', { className: "text-3xl font-semibold text-gray-900 dark:text-slate-50" }, formatCurrency(asset.price, asset.baseCurrency)),
               React.createElement('div', { className: `flex items-center gap-2 text-md font-medium ${changeColor} transition-colors duration-300` },
                 React.createElement('span', null, `${changeSymbol} ${formatCurrency(asset.change, asset.baseCurrency)}`),
-                React.createElement('span', null, `(${(asset.changePercent * 100).toFixed(2)}%)`)
+                React.createElement('span', null, `(${(asset.changePercent).toFixed(2)}%)`)
               )
             )
       )
@@ -709,7 +713,7 @@ const MarketOverviewItem = ({ asset }) => {
     React.createElement('p', { className: "text-sm font-bold text-gray-700 dark:text-slate-300 mr-2" }, asset.symbol),
     asset.price > 0 ? React.createElement('p', { className: "text-sm font-semibold text-gray-900 dark:text-slate-50 mr-3" }, formatCurrency(asset.price, asset.baseCurrency)) : React.createElement(LoadingSpinner, { size: "h-4 w-4" }),
     React.createElement('div', { className: `text-sm font-medium ${changeColor}` },
-      React.createElement('span', null, `${changeSymbol}${(asset.changePercent * 100).toFixed(2)}%`)
+      React.createElement('span', null, `${changeSymbol}${(asset.changePercent).toFixed(2)}%`)
     )
   );
 };
@@ -943,8 +947,21 @@ const AssetDetailView = ({ asset, isFavorite, onToggleFavorite }) => {
         return { rsi: calculateRSI(prices, 14), smas: { short: calculateSMA(prices, 10), long: calculateSMA(prices, 20) }, macd: calculateMACD(prices, 12, 26, 9) };
     }, [fetchedChartData]);
 
-    const handleGenerateAnalysis = async () => { setIsAnalyzing(true); const newAnalysis = await generateAnalysis(asset, rsi, macd, smas); setAnalysis(newAnalysis); setIsAnalyzing(false); };
+    const handleGenerateAnalysis = async () => { setIsAnalyzing(true); const newAnalysis = await generateAnalysis(asset, fetchedChartData, rsi, macd, smas); setAnalysis(newAnalysis); setIsAnalyzing(false); };
     const handleFavoriteClick = (e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(asset.id); };
+    const handleExportCSV = () => {
+        if (!fetchedChartData || fetchedChartData.length === 0) return;
+        const headers = ['date', 'price'];
+        const rows = fetchedChartData.map(row => `${row.date},${row.price}`);
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${asset.symbol}_chart_data.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
     
     const canUseLivePrice = asset.price > 0;
     const rawChartData = fetchedChartData || [];
@@ -1012,16 +1029,24 @@ const AssetDetailView = ({ asset, isFavorite, onToggleFavorite }) => {
                         React.createElement('p', { className: "text-4xl font-semibold text-gray-900 dark:text-slate-50" }, formatCurrency(price, baseCurrency)),
                         React.createElement('div', { className: `flex items-center justify-end gap-2 text-xl font-medium ${changeColor}` },
                             React.createElement('span', null, `${changeSymbol} ${formatCurrency(change, baseCurrency)}`),
-                            React.createElement('span', null, `(${(changePercent * 100).toFixed(2)}%)`)
+                            React.createElement('span', null, `(${(changePercent).toFixed(2)}%)`)
                         )
                     )
             )
         ),
-        React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-4 mb-8 min-h-[232px] flex items-center justify-center" },
+        React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-4 mb-2 min-h-[232px] flex items-center justify-center" },
             isChartLoading ? React.createElement(LoadingSpinner, null) : 
             (dynamicChartData.length > 0 ?
-                React.createElement(Chart, { data: dynamicChartData, color: isPositive ? '#10b981' : '#ef4444', asset: asset }) :
+                React.createElement(Chart, { data: dynamicChartData, color: isPositive ? '#10b981' : '#ef4444' }) :
                 React.createElement('div', {className: "text-gray-500 dark:text-slate-400"}, t.loadingChart))
+        ),
+        React.createElement('div', {className: "flex justify-end mb-8"},
+            React.createElement('button', { onClick: handleExportCSV, disabled: isChartLoading || !fetchedChartData || fetchedChartData.length === 0, className: "inline-flex items-center gap-2 text-sm text-sky-500 hover:text-sky-600 dark:text-sky-400 dark:hover:text-sky-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors" },
+                React.createElement('svg', { xmlns: "http://www.w3.org/2000/svg", className: "h-4 w-4", viewBox: "0 0 20 20", fill: "currentColor" },
+                  React.createElement('path', { fillRule: "evenodd", d: "M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z", clipRule: "evenodd" })
+                ),
+                t.exportCSV
+            )
         ),
         React.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-3 gap-8" },
             React.createElement('div', { className: "lg:col-span-2 space-y-8" },
@@ -1063,7 +1088,7 @@ const AssetDetailView = ({ asset, isFavorite, onToggleFavorite }) => {
                 !analysis ? React.createElement(React.Fragment, null, 
                   React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, t.aiAnalysis),
                   React.createElement('p', { className: "text-gray-500 dark:text-slate-400 mb-6" }, t.aiAnalysisSubtitle),
-                  React.createElement('button', { onClick: handleGenerateAnalysis, disabled: isAnalyzing, className: "w-full flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-600 disabled:bg-sky-500/50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300" }, isAnalyzing && React.createElement(LoadingSpinner, {size: "h-5 w-5"}), isAnalyzing ? t.generatingAnalysis : t.generateAnalysis)
+                  React.createElement('button', { onClick: handleGenerateAnalysis, disabled: isAnalyzing || isChartLoading, className: "w-full flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-600 disabled:bg-sky-500/50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300" }, isAnalyzing && React.createElement(LoadingSpinner, {size: "h-5 w-5"}), isAnalyzing ? t.generatingAnalysis : t.generateAnalysis)
                 ) : React.createElement('div', { className: "space-y-4 animate-fade-in-up" },
                   React.createElement('h3', { className: "text-2xl font-bold text-sky-500 dark:text-sky-400 mb-4" }, t.aiAnalysis),
                   React.createElement('div', { className: "bg-gray-100 dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700"}, React.createElement('h3', {className: "text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2"}, t.modalRecommendation), React.createElement(RecommendationBadge, {recommendation: analysis.recommendation})),
@@ -1114,11 +1139,42 @@ const ComparisonTray = ({ assets, onClear }) => {
     );
 };
 
+const ComparisonAssetCard = ({ asset }) => {
+    const { formatCurrency } = useCurrency();
+    const [flashColor, setFlashColor] = useState('');
+    const prevPrice = usePrevious(asset.price);
+
+    useEffect(() => {
+        if (prevPrice !== undefined && asset.price !== prevPrice && prevPrice !== 0) {
+            setFlashColor(asset.price > prevPrice ? 'bg-emerald-500/10' : 'bg-red-500/10');
+            const timer = setTimeout(() => setFlashColor(''), 400);
+            return () => clearTimeout(timer);
+        }
+    }, [asset.price, prevPrice]);
+
+    const isPositive = asset.changePercent >= 0;
+    const changeColor = isPositive ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
+    
+    return React.createElement('div', { className: `bg-white dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-3 transition-colors duration-300 ${flashColor}` },
+        React.createElement('div', { className: "flex items-center gap-2 mb-2" },
+            React.createElement('img', { src: asset.logo, alt: asset.name, className: "w-6 h-6" }),
+            React.createElement('div', { className: "flex-1" },
+                React.createElement('p', { className: "font-bold text-sm text-gray-800 dark:text-slate-100 truncate", title: asset.name }, asset.name),
+                React.createElement('p', { className: "text-xs text-gray-500 dark:text-slate-400" }, asset.symbol)
+            )
+        ),
+        asset.price > 0 ? React.createElement('div', null, 
+            React.createElement('p', { className: "text-lg font-semibold text-gray-900 dark:text-slate-50" }, formatCurrency(asset.price, asset.baseCurrency)),
+            React.createElement('p', { className: `text-sm font-medium ${changeColor}` }, `${(asset.changePercent).toFixed(2)}%`)
+        ) : React.createElement(LoadingSpinner, { size: "h-5 w-5" })
+    );
+};
+
 const ComparisonView = ({ assetIds, allAssets }) => {
     const { lang } = useLanguage();
     const t = translations[lang];
     const { theme } = useSettings();
-    const [chartData, setChartData] = useState(null);
+    const [historicalData, setHistoricalData] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -1129,6 +1185,11 @@ const ComparisonView = ({ assetIds, allAssets }) => {
     const comparisonAssets = useMemo(() => assetIds.map(id => allAssets.find(a => a.id === id)).filter(Boolean), [assetIds, allAssets]);
 
     useEffect(() => {
+        if (comparisonAssets.length === 0) {
+            setIsLoading(false);
+            return;
+        }
+        
         const fetchData = async () => {
             setIsLoading(true);
             setError(null);
@@ -1141,38 +1202,13 @@ const ComparisonView = ({ assetIds, allAssets }) => {
                     throw new Error("Failed to fetch data for one or more assets.");
                 }
 
-                // Normalize data
-                const normalizedData = {};
+                const newHistoricalData = {};
                 results.forEach((data, index) => {
-                    const firstPrice = data[0].price;
-                    if (firstPrice > 0) {
-                        normalizedData[comparisonAssets[index].symbol] = data.map(d => ({
-                            date: d.date,
-                            value: ((d.price / firstPrice) * 100) - 100
-                        }));
-                    }
+                    const symbol = comparisonAssets[index].symbol;
+                    newHistoricalData[symbol] = data;
                 });
+                setHistoricalData(newHistoricalData);
 
-                // Merge data
-                const allDates = new Set(Object.values(normalizedData).flatMap(d => d.map(p => p.date)));
-                const mergedData = Array.from(allDates).map(date => {
-                    const point = { date };
-                    for (const symbol in normalizedData) {
-                        const dataPoint = normalizedData[symbol].find(p => p.date === date);
-                        point[symbol] = dataPoint ? dataPoint.value : null;
-                    }
-                    return point;
-                });
-                
-                // Sort by date to ensure correctness
-                const sortedData = mergedData.sort((a, b) => {
-                    const [dayA, monthA] = a.date.split('/').map(Number);
-                    const [dayB, monthB] = b.date.split('/').map(Number);
-                    if (monthA !== monthB) return monthA - monthB;
-                    return dayA - dayB;
-                });
-
-                setChartData(sortedData);
             } catch (err) {
                 console.error("Error in comparison view fetch:", err);
                 setError(t.noDataForComparison);
@@ -1180,13 +1216,58 @@ const ComparisonView = ({ assetIds, allAssets }) => {
                 setIsLoading(false);
             }
         };
+        fetchData();
+    }, [assetIds.join(',')]); // Use a stable key for dependency
 
-        if (comparisonAssets.length > 0) {
-            fetchData();
-        } else {
-            setIsLoading(false);
-        }
-    }, [comparisonAssets]);
+    const chartData = useMemo(() => {
+        if (Object.keys(historicalData).length === 0) return null;
+
+        const normalizedData = {};
+        comparisonAssets.forEach(asset => {
+            const data = historicalData[asset.symbol];
+            if (!data || data.length === 0) return;
+
+            const firstPrice = data[0].price;
+            if (firstPrice > 0) {
+                const liveAsset = allAssets.find(a => a.id === asset.id);
+                const series = data.map(d => ({
+                    date: d.date,
+                    value: ((d.price / firstPrice) * 100) - 100
+                }));
+
+                // Update last point with live price from allAssets
+                if (liveAsset && liveAsset.price > 0 && series.length > 0) {
+                    const normalizedLiveValue = ((liveAsset.price / firstPrice) * 100) - 100;
+                    const lastPoint = series[series.length - 1];
+                    lastPoint.value = normalizedLiveValue; 
+                }
+                normalizedData[asset.symbol] = series;
+            }
+        });
+        
+        if (Object.keys(normalizedData).length === 0) return null;
+
+        const allDates = [...new Set(Object.values(normalizedData).flatMap(d => d.map(p => p.date)))];
+        const sortedDates = allDates.sort((a, b) => {
+            const [dayA, monthA] = a.split('/').map(Number);
+            const [dayB, monthB] = b.split('/').map(Number);
+            if (monthA !== monthB) return monthA - monthB;
+            return dayA - dayB;
+        });
+
+        const mergedData = sortedDates.map(date => {
+            const point = { date };
+            for (const symbol in normalizedData) {
+                const dataPoint = normalizedData[symbol].find(p => p.date === date);
+                point[symbol] = dataPoint ? dataPoint.value : null;
+            }
+            return point;
+        });
+
+        return mergedData;
+
+    }, [historicalData, allAssets, comparisonAssets]);
+
 
     if (isLoading) {
         return React.createElement('div', { className: "flex flex-col items-center justify-center h-96" }, React.createElement(LoadingSpinner, { size: "h-16 w-16" }), React.createElement('p', { className: "mt-4 text-xl text-gray-500 dark:text-slate-400" }, t.loadingChart));
@@ -1207,7 +1288,10 @@ const ComparisonView = ({ assetIds, allAssets }) => {
             t.backToList
         ),
         React.createElement('h2', { className: "text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2" }, t.comparisonChart),
-        React.createElement('p', { className: "text-gray-500 dark:text-slate-400 mb-8" }, t.performanceComparison),
+        React.createElement('p', { className: "text-gray-500 dark:text-slate-400 mb-6" }, t.performanceComparison),
+        React.createElement('div', { className: `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-${Math.min(comparisonAssets.length, 5)} gap-4 mb-6` },
+            comparisonAssets.map(asset => React.createElement(ComparisonAssetCard, { key: asset.id, asset: asset }))
+        ),
         React.createElement('div', { className: "bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-lg p-4 h-96" },
             React.createElement(ResponsiveContainer, { width: "100%", height: "100%" },
                 React.createElement(LineChart, { data: chartData, margin: { top: 5, right: 30, left: 0, bottom: 5 } },
